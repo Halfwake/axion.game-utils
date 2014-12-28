@@ -13,4 +13,5 @@
                (:file "utils")
                (:file "vector")
                (:file "matrix")
-               (:file "obj-parser")))
+               (:file "obj-parser")
+               (:file "frame")))

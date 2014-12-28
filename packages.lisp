@@ -5,6 +5,8 @@
            :read-data
            :load-texture
            :image->texture
+           :frame
+           :step-frame
            :ax-vector
            :vx
            :vy
