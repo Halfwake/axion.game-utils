@@ -27,7 +27,7 @@
                                  :element-type '(unsigned-byte 8)
                                  :displaced-to data))
          (texture (car (gl:gen-textures 1))))
-    (gl-bind-texture texture)
+    (gl:bind-texture :texture-2d texture)
     (gl:tex-parameter :texture-2d :generate-mipmap t)
     (gl:tex-parameter :texture-2d :texture-max-anisotropy-ext 16)
     (gl:tex-parameter :texture-2d :texture-min-filter :linear-mipmap-linear)

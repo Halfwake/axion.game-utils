@@ -65,6 +65,5 @@
            :matrix-convert-from-opengl
            :load-obj
            :gl-get-id
-           :gl-bind-texture
            :gl-send-matrix
            :gl-draw-arrays))

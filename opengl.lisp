@@ -3,9 +3,6 @@
 (defun gl-get-id (item)
   (cffi:foreign-enum-value '%gl:enum item :errorp nil))
 
-(defun gl-bind-texture (texture-id)
-  (%gl:bind-texture (gl-get-id :texture-2d) texture-id))
-
 (defun gl-send-matrix (matrix)
   #+(or cmucl sbcl ccl)
   (if (typep matrix '(simple-array single-float (16)))
