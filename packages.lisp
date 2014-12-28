@@ -1,6 +1,11 @@
 (defpackage #:axion.game-utils
   (:use :cl :alexandria :split-sequence)
-  (:export :ax-vector
+  (:export *system*
+           :get-path
+           :read-data
+           :load-texture
+           :image->texture
+           :ax-vector
            :vx
            :vy
            :vz
@@ -50,4 +55,8 @@
            :matrix-convert-to-opengl
            :matrix-convert-from-opengl-*
            :matrix-convert-from-opengl
-           :load-obj))
+           :load-obj
+           :gl-get-id
+           :gl-bind-texture
+           :gl-send-matrix
+           :gl-draw-arrays))
