@@ -5,8 +5,14 @@
            :read-data
            :load-texture
            :image->texture
+           :mouse-coords
+           :unproject-vector
            :frame
            :step-frame
+           :key-down
+           :key-up
+           :mouse-down
+           :mouse-up
            :ax-vector
            :vx
            :vy

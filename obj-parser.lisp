@@ -16,8 +16,9 @@
               :adjustable t
               :initial-element (make-vector)))
 
-(defun load-obj (obj-path)
-  (let ((obj (make-instance 'obj-file)))
+(defun load-obj (obj-name)
+  (let ((obj (make-instance 'obj-file))
+        (obj-path (get-path "res" (format nil "~a.obj" obj-name))))
     (with-open-file (in obj-path)
       (loop for line = (remove #\Return (read-line in nil nil))
             while line

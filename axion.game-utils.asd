@@ -5,12 +5,14 @@
   :serial t
   :depends-on (:cl-opengl
                :cl-glu
+               :sdl2kit
                :png-read
                :alexandria
                :split-sequence)
   :components ((:file "packages")
                (:file "opengl")
                (:file "utils")
+               (:file "input")
                (:file "vector")
                (:file "matrix")
                (:file "obj-parser")

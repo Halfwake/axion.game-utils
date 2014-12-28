@@ -12,7 +12,8 @@
    (frames :accessor frames
            :initform 0)
    (interval :reader interval
-             :initform 5.0)))
+             :initarg :interval
+             :initform 5)))
 
 (defun running-time ()
   (get-internal-real-time))
@@ -25,6 +26,6 @@
           before now)
     (let* ((seconds (/ (- now init) internal-time-units-per-second)))
       (when (and debugp (> seconds interval))
-        (format t "FPS: ~,2f~%" (/ frames seconds))
+        (format t "FPS: ~,2f~%" (/ frames (float interval)))
         (setf frames 0
               init (running-time))))))
