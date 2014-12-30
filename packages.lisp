@@ -7,12 +7,9 @@
            :image->texture
            :mouse-coords
            :unproject-vector
-           :frame
-           :step-frame
-           :key-down
-           :key-up
-           :mouse-down
-           :mouse-up
+           :gl-get-id
+           :gl-send-matrix
+           :gl-draw-arrays
            :ax-vector
            :vx
            :vy
@@ -63,7 +60,17 @@
            :matrix-convert-to-opengl
            :matrix-convert-from-opengl-*
            :matrix-convert-from-opengl
+           :axial->cube
+           :cube->axial
+           :cube->hex
+           :hex->cube
+           :hex-distance
+           :hex-round
+           :hex-neighbot
            :load-obj
-           :gl-get-id
-           :gl-send-matrix
-           :gl-draw-arrays))
+           :key-down
+           :key-up
+           :mouse-down
+           :mouse-up
+           :frame
+           :step-frame))

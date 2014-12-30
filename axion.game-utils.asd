@@ -10,10 +10,11 @@
                :alexandria
                :split-sequence)
   :components ((:file "packages")
-               (:file "opengl")
                (:file "utils")
-               (:file "input")
+               (:file "opengl")
                (:file "vector")
                (:file "matrix")
+               (:file "hexagon")
                (:file "obj-parser")
+               (:file "input")
                (:file "frame")))
