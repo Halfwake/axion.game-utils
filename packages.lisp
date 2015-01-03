@@ -73,4 +73,7 @@
            :mouse-down
            :mouse-up
            :frame
-           :step-frame))
+           :step-frame
+           :units-per-sec
+           :update-hz
+           :accumulator))

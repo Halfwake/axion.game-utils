@@ -14,4 +14,4 @@
 
 (defun gl-draw-arrays (vao mode count)
   (gl:bind-vertex-array vao)
-  (%gl:draw-arrays mode 0 count))
+  (gl:draw-arrays mode 0 count))
