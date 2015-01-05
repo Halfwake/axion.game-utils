@@ -14,6 +14,7 @@
                (:file "opengl")
                (:file "vector")
                (:file "matrix")
+               (:file "geometry-utils")
                (:file "hexagon")
                (:file "obj-parser")
                (:file "input")

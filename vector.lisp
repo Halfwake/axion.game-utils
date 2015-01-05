@@ -202,13 +202,3 @@
     (sqrt (+ (* x x)
              (* y y)
              (* z z)))))
-
-(declaim (ftype (function (ax-vector ax-vector ax-vector) single-float)
-                point-line-distance))
-(declaim (inline point-line-distance))
-(defun point-line-distance (start end point)
-  "Calculate the shortest distance between a line and a point"
-  (let ((line (vector-subtract end start))
-        (v (vector-subtract point start)))
-    (/ (vector-length (vector-cross line v))
-       (vector-length line))))

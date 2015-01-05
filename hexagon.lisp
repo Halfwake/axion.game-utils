@@ -41,9 +41,8 @@
 (defun hex-round (src)
   "Calculate the nearest hexagon from a 3-D vector respresenting cube
    coordinates"
-  (let* ((src (vector->list src))
-         (rounded (mapcar #'round src))
-         (diff (apply #'make-vector (mapcar #'abs (mapcar #'- rounded src))))
+  (let* ((rounded (map 'list 'round src))
+         (diff (apply #'make-vector (mapcar #'abs (map 'list '- rounded src))))
          (dest (apply #'make-vector rounded)))
     (cond
       ((and (> (vx diff) (vy diff))
@@ -59,11 +58,12 @@
    coordinate and a 2-D directional vector.
    Example: Hexagon 2,2 with direction -1,1 (northwest) would return the
    coordinates 1,1"
-  (let* ((src (vector->list (hex->cube src)))
-         (directions #((1 -1 0) (1 0 -1) (0 1 -1)
-                       (-1 1 0) (-1 0 1) (0 -1 1)))
+  (let* ((directions `#(,(make-vector 1 -1 0)
+                        ,(make-vector 1 0 -1)
+                        ,(make-vector 0 1 -1)
+                        ,(make-vector -1 1 0)
+                        ,(make-vector -1 0 1)
+                        ,(make-vector 0 -1 1)))
          (angle (atan (vy direction) (vx direction)))
-         (index (mod (+ 6 (round (/ (* 6 angle) (* pi 2)))) 6))
-         (offset (aref directions index))
-         (dest (apply #'make-vector (mapcar #'+ src offset))))
-    (cube->hex dest)))
+         (index (mod (+ 6 (round (/ (* 6 angle) (* pi 2)))) 6)))
+    (cube->hex (vector-add (hex->cube src) (aref directions index)))))

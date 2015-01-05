@@ -60,13 +60,14 @@
            :matrix-convert-to-opengl
            :matrix-convert-from-opengl-*
            :matrix-convert-from-opengl
+           :point-line-distance
            :axial->cube
            :cube->axial
            :cube->hex
            :hex->cube
            :hex-distance
            :hex-round
-           :hex-neighbot
+           :hex-neighbor
            :load-obj
            :key-down
            :key-up
