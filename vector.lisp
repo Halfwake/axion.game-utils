@@ -156,9 +156,10 @@
 (defun vector-normalize-* (src)
   "Convert a vector to a unit vector"
   (let ((magnitude (vector-length src)))
-    (psetf (vx src) (/ (vx src) magnitude)
-           (vy src) (/ (vy src) magnitude)
-           (vz src) (/ (vz src) magnitude))
+    (unless (zerop magnitude)
+      (psetf (vx src) (/ (vx src) magnitude)
+             (vy src) (/ (vy src) magnitude)
+             (vz src) (/ (vz src) magnitude)))
     src))
 
 (declaim (ftype (function (ax-vector) ax-vector) vector-normalize))

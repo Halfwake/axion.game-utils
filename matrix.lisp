@@ -75,11 +75,11 @@
 (declaim (ftype (function (ax-matrix ax-matrix) ax-matrix) matrix-copy-*))
 (defun matrix-copy-* (src dest)
   "Copy a matrix to an existing matrix"
-  (with-matrices ((a src) (b dest))
-    (psetf b00 a00 b01 a01 b02 a02 b03 a03
-           b10 a10 b11 a11 b12 a12 b13 a13
-           b20 a20 b21 a21 b22 a22 b23 a23
-           b30 a30 b31 a31 b32 a32 b33 a33))
+  (with-matrices ((s src) (d dest))
+    (psetf d00 s00 d01 s01 d02 s02 d03 s03
+           d10 s10 d11 s11 d12 s12 d13 s13
+           d20 s20 d21 s21 d22 s22 d23 s23
+           d30 s30 d31 s31 d32 s32 d33 s33))
   dest)
 
 (declaim (ftype (function (ax-matrix) ax-matrix) matrix-copy))
@@ -102,27 +102,59 @@
   "Create a new identity matrix"
   (matrix-identity-* (make-matrix)))
 
+(declaim (ftype (function (ax-matrix) ax-matrix)
+                matrix-stabilize-*))
+(defun matrix-stabilize-* (src)
+  "Force each matrix element to 0 if below the tolerance level of 1e-7"
+  (with-matrix (m src)
+    (macrolet ((stabilize (place)
+                 `(when (< (abs ,place) 1e-7)
+                    (setf ,place 0.0))))
+      (stabilize m00)
+      (stabilize m01)
+      (stabilize m02)
+      (stabilize m03)
+      (stabilize m10)
+      (stabilize m11)
+      (stabilize m12)
+      (stabilize m13)
+      (stabilize m20)
+      (stabilize m21)
+      (stabilize m22)
+      (stabilize m23)
+      (stabilize m30)
+      (stabilize m31)
+      (stabilize m32)
+      (stabilize m33)))
+  src)
+
+(declaim (ftype (function (ax-matrix) ax-matrix)
+                matrix-stabilize))
+(defun matrix-stabilize (src)
+  "Force each matrix element to 0 if below the tolerance level as a new matrix"
+  (matrix-stabilize-* (matrix-copy src)))
+
 (declaim (ftype (function (ax-matrix ax-matrix ax-matrix) ax-matrix)
                 matrix-multiply-*))
 (defun matrix-multiply-* (src1 src2 dest)
   "Store the product of two matrices in an existing matrix"
-  (with-matrices ((a src1) (b src2) (c dest))
-    (psetf c00 (+ (* a00 b00) (* a01 b10) (* a02 b20) (* a03 b30))
-           c10 (+ (* a10 b00) (* a11 b10) (* a12 b20) (* a13 b30))
-           c20 (+ (* a20 b00) (* a21 b10) (* a22 b20) (* a23 b30))
-           c30 (+ (* a30 b00) (* a31 b10) (* a32 b20) (* a33 b30))
-           c01 (+ (* a00 b01) (* a01 b11) (* a02 b21) (* a03 b31))
-           c11 (+ (* a10 b01) (* a11 b11) (* a12 b21) (* a13 b31))
-           c21 (+ (* a20 b01) (* a21 b11) (* a22 b21) (* a23 b31))
-           c31 (+ (* a30 b01) (* a31 b11) (* a32 b21) (* a33 b31))
-           c02 (+ (* a00 b02) (* a01 b12) (* a02 b22) (* a03 b32))
-           c12 (+ (* a10 b02) (* a11 b12) (* a12 b22) (* a13 b32))
-           c22 (+ (* a20 b02) (* a21 b12) (* a22 b22) (* a23 b32))
-           c32 (+ (* a30 b02) (* a31 b12) (* a32 b22) (* a33 b32))
-           c03 (+ (* a00 b03) (* a01 b13) (* a02 b23) (* a03 b33))
-           c13 (+ (* a10 b03) (* a11 b13) (* a12 b23) (* a13 b33))
-           c23 (+ (* a20 b03) (* a21 b13) (* a22 b23) (* a23 b33))
-           c33 (+ (* a30 b03) (* a31 b13) (* a32 b23) (* a33 b33))))
+  (with-matrices ((a src1) (b src2) (d dest))
+    (psetf d00 (+ (* a00 b00) (* a01 b10) (* a02 b20) (* a03 b30))
+           d10 (+ (* a10 b00) (* a11 b10) (* a12 b20) (* a13 b30))
+           d20 (+ (* a20 b00) (* a21 b10) (* a22 b20) (* a23 b30))
+           d30 (+ (* a30 b00) (* a31 b10) (* a32 b20) (* a33 b30))
+           d01 (+ (* a00 b01) (* a01 b11) (* a02 b21) (* a03 b31))
+           d11 (+ (* a10 b01) (* a11 b11) (* a12 b21) (* a13 b31))
+           d21 (+ (* a20 b01) (* a21 b11) (* a22 b21) (* a23 b31))
+           d31 (+ (* a30 b01) (* a31 b11) (* a32 b21) (* a33 b31))
+           d02 (+ (* a00 b02) (* a01 b12) (* a02 b22) (* a03 b32))
+           d12 (+ (* a10 b02) (* a11 b12) (* a12 b22) (* a13 b32))
+           d22 (+ (* a20 b02) (* a21 b12) (* a22 b22) (* a23 b32))
+           d32 (+ (* a30 b02) (* a31 b12) (* a32 b22) (* a33 b32))
+           d03 (+ (* a00 b03) (* a01 b13) (* a02 b23) (* a03 b33))
+           d13 (+ (* a10 b03) (* a11 b13) (* a12 b23) (* a13 b33))
+           d23 (+ (* a20 b03) (* a21 b13) (* a22 b23) (* a23 b33))
+           d33 (+ (* a30 b03) (* a31 b13) (* a32 b23) (* a33 b33))))
   dest)
 
 (declaim (ftype (function (ax-matrix ax-matrix) ax-matrix)
@@ -131,20 +163,143 @@
   "Store the product of two matrices in a new matrix"
   (matrix-multiply-* src1 src2 (make-matrix)))
 
+(declaim (ftype (function (ax-matrix ax-matrix) ax-matrix) matrix-transpose-*))
+(defun matrix-transpose-* (src dest)
+  "Convert all rows into columns, and all columns into rows"
+  (unless (eq src dest)
+    (matrix-copy-* src dest))
+  (with-matrix (m dest)
+    (rotatef m10 m01)
+    (rotatef m20 m02)
+    (rotatef m30 m03)
+    (rotatef m21 m12)
+    (rotatef m31 m13)
+    (rotatef m32 m23))
+  dest)
+
+(declaim (ftype (function (ax-matrix) ax-matrix) matrix-transpose))
+(defun matrix-transpose (src)
+  "Convert all rows into columns, and all columns into rows, as a new matrix"
+  (matrix-transpose-* src (make-matrix)))
+
+(declaim (ftype (function (ax-vector ax-matrix) ax-matrix)
+                matrix-rotate-*))
+(defun matrix-rotate-* (vec src)
+  "Apply a rotation transformation to a matrix"
+  (let ((dest (make-matrix))
+        (rotation (matrix-identity)))
+    (macrolet ((rot (axis s c &body body)
+                 `(let ((,s (sin ,axis))
+                        (,c (cos ,axis)))
+                    ,@body
+                    (matrix-multiply-* src rotation dest)
+                    (matrix-copy-rotation-* dest src))))
+      (with-matrix (m rotation)
+        (rot (vz vec) s c
+          (psetf m00 c
+                 m10 s
+                 m01 (- s)
+                 m11 c))
+        (rot (vx vec) s c
+          (psetf m00 1.0
+                 m10 0.0
+                 m20 0.0
+                 m01 0.0
+                 m11 c
+                 m21 s
+                 m02 0.0
+                 m12 (- s)
+                 m22 c))
+        (rot (vy vec) s c
+          (psetf m00 c
+                 m10 0.0
+                 m20 (- s)
+                 m01 0.0
+                 m11 1.0
+                 m21 0.0
+                 m02 s
+                 m12 0.0
+                 m22 c)))))
+  (matrix-stabilize-* src))
+
+(declaim (ftype (function (ax-vector ax-matrix) ax-matrix)
+                matrix-rotate))
+(defun matrix-rotate (vec src)
+  "Apply a rotation transformation to a matrix as a new matrix"
+  (matrix-rotate-* vec (matrix-copy src)))
+
 (declaim (ftype (function (ax-vector ax-matrix) ax-matrix)
                 matrix-translate-*))
-(defun matrix-translate-* (vec dest)
-  "Add a translation vector to a matrix"
-  (with-matrix (m dest)
+(defun matrix-translate-* (vec src)
+  "Apply a translation transformation to a matrix"
+  (with-matrix (m src)
     (psetf m03 (+ m03 (vx vec))
            m13 (+ m13 (vy vec))
            m23 (+ m23 (vz vec))))
-  dest)
+  src)
 
 (declaim (ftype (function (ax-vector ax-matrix) ax-matrix) matrix-translate))
-(defun matrix-translate (vec dest)
-  "Add as translation vector to a matrix as a new matrix"
-  (matrix-translate-* vec (matrix-copy dest)))
+(defun matrix-translate (vec src)
+  "Apply a translation transformation to a matrix as a new matrix"
+  (matrix-translate-* vec (matrix-copy src)))
+
+(declaim (ftype (function (ax-vector ax-matrix) ax-matrix) matrix-scale-*))
+(defun matrix-scale-* (vec src)
+  "Apply a scale transformation to a matrix"
+  (matrix-identity-* src)
+  (with-matrix (m src)
+    (psetf m00 (vx vec)
+           m11 (vy vec)
+           m22 (vz vec)))
+  src)
+
+(declaim (ftype (function (ax-vector ax-matrix) ax-matrix) matrix-scale))
+(defun matrix-scale (vec src)
+  "Apply a scale transformation to a matrix as a new matrix"
+  (matrix-scale-* vec (matrix-copy src)))
+
+(declaim (ftype (function (ax-matrix float ax-vector) ax-matrix)
+                matrix-rotate-around-*))
+(defun matrix-rotate-around-* (src angle axis)
+  "Rotate a transformation matrix around an axis by the given angle"
+  (let* ((axis (vector-normalize axis))
+         (c (cos angle))
+         (1-c (- 1.0 c))
+         (s (sin angle))
+         (xs (* (vx axis) s))
+         (ys (* (vy axis) s))
+         (zs (* (vz axis) s))
+         (xx (* (vx axis) (vx axis)))
+         (xy (* (vx axis) (vy axis)))
+         (xz (* (vx axis) (vz axis)))
+         (yy (* (vy axis) (vy axis)))
+         (yz (* (vy axis) (vz axis)))
+         (zz (* (vz axis) (vz axis))))
+    (with-matrix (m src)
+      (psetf m00 (float (+ (* xx 1-c) c) 1.0)
+             m10 (float (+ (* xy 1-c) zs) 1.0)
+             m20 (float (- (* xz 1-c) ys) 1.0)
+             m30 0.0
+             m01 (float (- (* xy 1-c) zs) 1.0)
+             m11 (float (+ (* yy 1-c) c) 1.0)
+             m21 (float (+ (* yz 1-c) xs) 1.0)
+             m31 0.0
+             m02 (float (+ (* xz 1-c) ys) 1.0)
+             m12 (float (- (* yz 1-c) xs) 1.0)
+             m22 (float (+ (* zz 1-c) c) 1.0)
+             m32 0.0
+             m03 0.0
+             m13 0.0
+             m23 0.0
+             m33 1.0))
+    (matrix-stabilize-* src)))
+
+(declaim (ftype (function (single-float ax-vector) ax-matrix)
+                matrix-rotate-around))
+(defun matrix-rotate-around (angle axis)
+  "Rotate a transformation matrix around an axis by the given angle, as
+   a new matrix."
+  (matrix-rotate-around-* (make-matrix) angle axis))
 
 (declaim (ftype (function (ax-vector ax-matrix) ax-vector)
                 matrix-get-translation-*))
@@ -161,11 +316,26 @@
   "Put the translation column of a matrix into a new vector"
   (matrix-get-translation-* (make-vector) src))
 
+(declaim (ftype (function (ax-matrix ax-matrix) ax-matrix)
+                matrix-copy-rotation-*))
+(defun matrix-copy-rotation-* (src dest)
+  "Copy the rotation transformation of a matrix"
+  (with-matrices ((s src) (d dest))
+    (psetf d00 s00 d01 s01 d02 s02
+           d10 s10 d11 s11 d12 s12
+           d20 s20 d21 s21 d22 s22))
+  dest)
+
+(declaim (ftype (function (ax-matrix) ax-matrix) matrix-copy-rotation))
+(defun matrix-copy-rotation (src)
+  "Copy the rotation transformation to a new matrix"
+  (matrix-copy-rotation-* src (matrix-identity)))
+
 (declaim (ftype (function (ax-matrix ax-vector ax-vector) ax-vector)
                 matrix-apply-*))
-(defun matrix-apply-* (basis point dest)
-  "Multiply a basis matrix by a point vector stored in the given destination"
-  (with-matrix (m basis)
+(defun matrix-apply-* (src point dest)
+  "Multiply a transformation matrix by a point"
+  (with-matrix (m src)
     (psetf (vx dest) (+ (* m00 (vx point))
                         (* m01 (vy point))
                         (* m02 (vz point))
@@ -181,86 +351,9 @@
   dest)
 
 (declaim (ftype (function (ax-matrix ax-vector) ax-vector) matrix-apply))
-(defun matrix-apply (basis point)
-  "Multiply a basis matrix by a point vector stored in a new vector"
-  (matrix-apply-* basis point (make-vector)))
-
-(declaim (ftype (function (ax-matrix ax-matrix) ax-matrix)
-                matrix-copy-rotation-*))
-(defun matrix-copy-rotation-* (src dest)
-  "Copy the rotation vectors from the source to the destination matrix"
-  (with-matrices ((s src) (d dest))
-    (psetf d00 s00 d01 s01 d02 s02
-           d10 s10 d11 s11 d12 s12
-           d20 s20 d21 s21 d22 s22))
-  dest)
-
-(declaim (ftype (function (ax-matrix) ax-matrix) matrix-copy-rotation))
-(defun matrix-copy-rotation (src)
-  "Copy the rotation vectors from the source to a new matrix"
-  (matrix-copy-rotation-* src (matrix-identity)))
-
-(declaim (ftype (function (ax-vector ax-matrix) ax-matrix) matrix-rotate-*))
-(defun matrix-rotate-* (vec src)
-  "Rotate a matrix"
-  (let ((dest (make-matrix))
-        (rotation (make-matrix))
-        (x (vx vec))
-        (y (vy vec))
-        (z (vz vec)))
-    (with-matrix (m rotation)
-      (matrix-identity-* rotation)
-      (psetf m00 (cos z) m10 (sin z) m01 (- (sin z)) m11 (cos z))
-      (matrix-multiply-* src rotation dest)
-      (matrix-copy-rotation-* dest src)
-      (psetf m00 1.0 m10 0.0 m20 0.0
-             m01 0.0 m11 (cos x) m21 (sin x)
-             m02 0.0 m12 (- (sin x)) m22 (cos x))
-      (matrix-multiply-* src rotation dest)
-      (matrix-copy-rotation-* dest src)
-      (psetf m00 (cos y) m10 0.0 m20 (- (sin y))
-             m01 0.0 m11 1.0 m21 0.0
-             m02 (sin y) m12 0.0 m22 (cos y))
-      (matrix-multiply-* src rotation dest)
-      (matrix-copy-rotation-* dest src)))
-  (matrix-stabilize-* src 1e-9))
-
-(declaim (ftype (function (ax-vector ax-matrix) ax-matrix) matrix-rotate))
-(defun matrix-rotate (vec src)
-  "Rotate a matrix as a new matrix"
-  (matrix-rotate-* vec (matrix-copy src)))
-
-(declaim (ftype (function (ax-matrix single-float) ax-matrix)
-                matrix-stabilize-*))
-(defun matrix-stabilize-* (src tolerance)
-  "Force each matrix element to 0 if below the tolerance level"
-  (with-matrix (m src)
-    (macrolet ((stabilize (place tol)
-                 `(when (< (abs ,place) ,tol)
-                    (setf ,place 0.0))))
-      (stabilize m00 tolerance)
-      (stabilize m01 tolerance)
-      (stabilize m02 tolerance)
-      (stabilize m03 tolerance)
-      (stabilize m10 tolerance)
-      (stabilize m11 tolerance)
-      (stabilize m12 tolerance)
-      (stabilize m13 tolerance)
-      (stabilize m20 tolerance)
-      (stabilize m21 tolerance)
-      (stabilize m22 tolerance)
-      (stabilize m23 tolerance)
-      (stabilize m30 tolerance)
-      (stabilize m31 tolerance)
-      (stabilize m32 tolerance)
-      (stabilize m33 tolerance)))
-  src)
-
-(declaim (ftype (function (ax-matrix single-float) ax-matrix)
-                matrix-stabilize))
-(defun matrix-stabilize (src tolerance)
-  "Force each matrix element to 0 if below the tolerance level as a new matrix"
-  (matrix-stabilize-* (matrix-copy src) tolerance))
+(defun matrix-apply (src point)
+  "Multiply a transformation matrix by a point as a new vector"
+  (matrix-apply-* src point (make-vector)))
 
 (declaim (ftype (function (ax-matrix ax-matrix) ax-matrix)
                 matrix-convert-to-opengl-*))
