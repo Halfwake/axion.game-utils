@@ -102,8 +102,7 @@
   "Create a new identity matrix"
   (matrix-identity-* (make-matrix)))
 
-(declaim (ftype (function (ax-matrix) ax-matrix)
-                matrix-stabilize-*))
+(declaim (ftype (function (ax-matrix) ax-matrix) matrix-stabilize-*))
 (defun matrix-stabilize-* (src)
   "Force each matrix element to 0 if below the tolerance level of 1e-7"
   (with-matrix (m src)
@@ -128,8 +127,7 @@
       (stabilize m33)))
   src)
 
-(declaim (ftype (function (ax-matrix) ax-matrix)
-                matrix-stabilize))
+(declaim (ftype (function (ax-matrix) ax-matrix) matrix-stabilize))
 (defun matrix-stabilize (src)
   "Force each matrix element to 0 if below the tolerance level as a new matrix"
   (matrix-stabilize-* (matrix-copy src)))
@@ -157,8 +155,7 @@
            d33 (+ (* a30 b03) (* a31 b13) (* a32 b23) (* a33 b33))))
   dest)
 
-(declaim (ftype (function (ax-matrix ax-matrix) ax-matrix)
-                matrix-multiply))
+(declaim (ftype (function (ax-matrix ax-matrix) ax-matrix) matrix-multiply))
 (defun matrix-multiply (src1 src2)
   "Store the product of two matrices in a new matrix"
   (matrix-multiply-* src1 src2 (make-matrix)))
@@ -182,8 +179,7 @@
   "Convert all rows into columns, and all columns into rows, as a new matrix"
   (matrix-transpose-* src (make-matrix)))
 
-(declaim (ftype (function (ax-vector ax-matrix) ax-matrix)
-                matrix-rotate-*))
+(declaim (ftype (function (ax-vector ax-matrix) ax-matrix) matrix-rotate-*))
 (defun matrix-rotate-* (vec src)
   "Apply a rotation transformation to a matrix"
   (let ((dest (make-matrix))
@@ -222,14 +218,12 @@
                  m22 c)))))
   (matrix-stabilize-* src))
 
-(declaim (ftype (function (ax-vector ax-matrix) ax-matrix)
-                matrix-rotate))
+(declaim (ftype (function (ax-vector ax-matrix) ax-matrix) matrix-rotate))
 (defun matrix-rotate (vec src)
   "Apply a rotation transformation to a matrix as a new matrix"
   (matrix-rotate-* vec (matrix-copy src)))
 
-(declaim (ftype (function (ax-vector ax-matrix) ax-matrix)
-                matrix-translate-*))
+(declaim (ftype (function (ax-vector ax-matrix) ax-matrix) matrix-translate-*))
 (defun matrix-translate-* (vec src)
   "Apply a translation transformation to a matrix"
   (with-matrix (m src)
