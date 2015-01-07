@@ -252,7 +252,7 @@
   "Apply a scale transformation to a matrix as a new matrix"
   (matrix-scale-* vec (matrix-copy src)))
 
-(declaim (ftype (function (ax-matrix float ax-vector) ax-matrix)
+(declaim (ftype (function (ax-matrix double-float ax-vector) ax-matrix)
                 matrix-rotate-around-*))
 (defun matrix-rotate-around-* (src angle axis)
   "Rotate a transformation matrix around an axis by the given angle"
