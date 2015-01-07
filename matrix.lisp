@@ -179,11 +179,11 @@
   "Convert all rows into columns, and all columns into rows, as a new matrix"
   (matrix-transpose-* src (make-matrix)))
 
-(declaim (ftype (function (ax-vector ax-matrix) ax-matrix) matrix-rotate-*))
-(defun matrix-rotate-* (vec src)
+(declaim (ftype (function (ax-vector ax-matrix ax-matrix) ax-matrix)
+                matrix-rotate-*))
+(defun matrix-rotate-* (vec src dest)
   "Apply a rotation transformation to a matrix"
-  (let ((dest (make-matrix))
-        (rotation (matrix-identity)))
+  (let ((rotation (matrix-identity)))
     (macrolet ((rot (axis s c &body body)
                  `(let ((,s (sin ,axis))
                         (,c (cos ,axis)))
@@ -221,21 +221,21 @@
 (declaim (ftype (function (ax-vector ax-matrix) ax-matrix) matrix-rotate))
 (defun matrix-rotate (vec src)
   "Apply a rotation transformation to a matrix as a new matrix"
-  (matrix-rotate-* vec (matrix-copy src)))
+  (matrix-rotate-* vec src (matrix-identity)))
 
 (declaim (ftype (function (ax-vector ax-matrix) ax-matrix) matrix-translate-*))
 (defun matrix-translate-* (vec src)
   "Apply a translation transformation to a matrix"
   (with-matrix (m src)
-    (psetf m03 (+ m03 (vx vec))
-           m13 (+ m13 (vy vec))
-           m23 (+ m23 (vz vec))))
+    (psetf m03 (vx vec)
+           m13 (vy vec)
+           m23 (vz vec)))
   src)
 
-(declaim (ftype (function (ax-vector ax-matrix) ax-matrix) matrix-translate))
-(defun matrix-translate (vec src)
+(declaim (ftype (function (ax-vector) ax-matrix) matrix-translate))
+(defun matrix-translate (vec)
   "Apply a translation transformation to a matrix as a new matrix"
-  (matrix-translate-* vec (matrix-copy src)))
+  (matrix-translate-* vec (matrix-identity)))
 
 (declaim (ftype (function (ax-vector ax-matrix) ax-matrix) matrix-scale-*))
 (defun matrix-scale-* (vec src)
@@ -247,10 +247,10 @@
            m22 (vz vec)))
   src)
 
-(declaim (ftype (function (ax-vector ax-matrix) ax-matrix) matrix-scale))
-(defun matrix-scale (vec src)
+(declaim (ftype (function (ax-vector) ax-matrix) matrix-scale))
+(defun matrix-scale (vec)
   "Apply a scale transformation to a matrix as a new matrix"
-  (matrix-scale-* vec (matrix-copy src)))
+  (matrix-scale-* vec (matrix-identity)))
 
 (declaim (ftype (function (ax-matrix double-float ax-vector) ax-matrix)
                 matrix-rotate-around-*))
@@ -288,12 +288,12 @@
              m33 1.0))
     (matrix-stabilize-* src)))
 
-(declaim (ftype (function (single-float ax-vector) ax-matrix)
+(declaim (ftype (function (double-float ax-vector) ax-matrix)
                 matrix-rotate-around))
 (defun matrix-rotate-around (angle axis)
   "Rotate a transformation matrix around an axis by the given angle, as
    a new matrix."
-  (matrix-rotate-around-* (make-matrix) angle axis))
+  (matrix-rotate-around-* (matrix-identity) angle axis))
 
 (declaim (ftype (function (ax-vector ax-matrix) ax-vector)
                 matrix-get-translation-*))

@@ -67,6 +67,8 @@
            :matrix-convert-to-opengl
            :matrix-convert-from-opengl-*
            :matrix-convert-from-opengl
+           :move-by
+           :rotate-by
            :point-line-distance
            :axial->cube
            :cube->axial
