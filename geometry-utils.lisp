@@ -10,9 +10,11 @@
   (unless rotatingp
     (vector-clear vec)))
 
-(defun point-line-distance (start end point)
+(defun point-line-distance (line point)
   "Calculate the shortest distance between a line and a point"
-  (let ((line (vector-subtract end start))
-        (v (vector-subtract point start)))
-    (/ (vector-length (vector-cross line v))
-       (vector-length line)))) 
+  (let* ((start (aref line 0))
+         (end (aref line 1))
+         (line-length (vector-subtract end start))
+         (v (vector-subtract point start)))
+    (/ (vector-length (vector-cross line-length v))
+       (vector-length line-length))))

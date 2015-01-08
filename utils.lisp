@@ -1,10 +1,22 @@
 (in-package :axion.game-utils)
 
 (defvar *system* nil)
+(defvar *executablep* nil)
+
+#+sbcl
+(defun get-running-path ()
+  (namestring (truename (cl-fad:pathname-directory-pathname
+                          sb-ext:*core-pathname*))))
 
 (defun get-path (sub-path filename)
   (let ((path (format nil "~a/~a" sub-path filename)))
-    (asdf:system-relative-pathname *system* path)))
+    (let ((system-path (asdf:system-relative-pathname *system* path)))
+      #+sbcl
+      (if *executablep*
+        (cl-fad:merge-pathnames-as-file (pathname (get-running-path)) path)
+        system-path)
+      #-sbcl
+      system-path)))
 
 (defun read-data (data-type data-name)
   (let ((filename (get-path data-type (format nil "~a.lisp" data-name))))

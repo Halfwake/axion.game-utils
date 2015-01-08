@@ -1,6 +1,7 @@
 (defpackage #:axion.game-utils
   (:use :cl :alexandria :split-sequence)
   (:export *system*
+           *executablep*
            :get-path
            :read-data
            :load-texture
