@@ -1,11 +1,11 @@
 (in-package :axion.game-utils)
 
-(defun move-by (vec mat &optional (movingp nil))
+(defun move-by (vec mat &optional movingp)
   (matrix-multiply-* (matrix-translate vec) mat mat)
   (unless movingp
     (vector-clear vec)))
 
-(defun rotate-by (vec mat &optional (rotatingp nil))
+(defun rotate-by (vec mat &optional rotatingp)
   (matrix-rotate-* vec mat mat)
   (unless rotatingp
     (vector-clear vec)))
