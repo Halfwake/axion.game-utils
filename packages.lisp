@@ -70,6 +70,7 @@
            :matrix-convert-from-opengl
            :move-by
            :rotate-by
+           :rpms->radians
            :point-line-distance
            :axial->cube
            :cube->axial
