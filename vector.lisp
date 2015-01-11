@@ -167,6 +167,28 @@
   "Convert a vector into a unit vector as a new vector"
   (vector-normalize-* (vector-copy src)))
 
+(declaim (ftype (function (ax-vector) ax-vector) vector-round-*))
+(defun vector-round-* (src)
+  (psetf (vx src) (float (round (vx src)) 1.0)
+         (vy src) (float (round (vy src)) 1.0)
+         (vz src) (float (round (vz src)) 1.0))
+  src)
+
+(declaim (ftype (function (ax-vector) ax-vector) vector-round))
+(defun vector-round (src)
+  (vector-round-* (vector-copy src)))
+
+(declaim (ftype (function (ax-vector) ax-vector) vector-positive-*))
+(defun vector-positive-* (src)
+  (psetf (vx src) (abs (vx src))
+         (vy src) (abs (vy src))
+         (vz src) (abs (vz src)))
+  src)
+
+(declaim (ftype (function (ax-vector) ax-vector) vector-positive))
+(defun vector-positive (src)
+  (vector-positive-* (vector-copy src)))
+
 (declaim (ftype (function (ax-vector ax-vector ax-vector) ax-vector)
                 vector-cross-*))
 (declaim (inline vector-cross-*))

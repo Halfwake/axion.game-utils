@@ -34,6 +34,10 @@
            :vector-length
            :vector-normalize-*
            :vector-normalize
+           :vector-round-*
+           :vector-round
+           :vector-positive-*
+           :vector-positive
            :vector-cross-*
            :vector-cross
            :vector-dot

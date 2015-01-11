@@ -41,9 +41,8 @@
 (defun hex-round (src)
   "Calculate the nearest hexagon from a 3-D vector respresenting cube
    coordinates"
-  (let* ((rounded (map 'list 'round src))
-         (diff (apply #'make-vector (mapcar #'abs (map 'list '- rounded src))))
-         (dest (apply #'make-vector rounded)))
+  (let* ((dest (vector-round (hex->cube src)))
+         (diff (vector-positive (vector-subtract dest src))))
     (cond
       ((and (> (vx diff) (vy diff))
             (> (vx diff) (vz diff)))
@@ -51,7 +50,7 @@
       ((> (vy diff) (vz diff))
        (setf (vy dest) (- (- (vx dest)) (vz dest))))
       (t (setf (vz dest) (- (- (vx dest)) (vy dest)))))
-    dest))
+    (cube->hex dest)))
 
 (defun hex-neighbor (src direction)
   "Calculate the coordinates of a hexagon's neighbor given a source hexagon
