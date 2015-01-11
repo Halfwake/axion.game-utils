@@ -13,6 +13,8 @@
 
 (declaim (inline make-vector))
 (defun make-vector (&optional (x 0.0) (y 0.0) (z 0.0))
+  #+sbcl
+  (declare (sb-ext:muffle-conditions sb-ext:compiler-note))
   (%make-vector (float x 1.0) (float y 1.0) (float z 1.0)))
 
 (defun vector-test ()
@@ -147,6 +149,8 @@
 (declaim (inline vector-length))
 (defun vector-length (src)
   "Compute the Euclidean length of a vector"
+  #+sbcl
+  (declare (sb-ext:muffle-conditions sb-ext:compiler-note))
   (sqrt (+ (* (vx src) (vx src))
            (* (vy src) (vy src))
            (* (vz src) (vz src)))))
@@ -169,9 +173,9 @@
 
 (declaim (ftype (function (ax-vector) ax-vector) vector-round-*))
 (defun vector-round-* (src)
-  (psetf (vx src) (float (round (vx src)) 1.0)
-         (vy src) (float (round (vy src)) 1.0)
-         (vz src) (float (round (vz src)) 1.0))
+  (psetf (vx src) (fround (vx src))
+         (vy src) (fround (vy src))
+         (vz src) (fround (vz src)))
   src)
 
 (declaim (ftype (function (ax-vector) ax-vector) vector-round))

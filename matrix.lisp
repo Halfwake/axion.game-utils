@@ -56,6 +56,8 @@
 (set-pprint-dispatch
   'ax-matrix
   #'(lambda (stream pobj)
+      #+sbcl
+      (declare (sb-ext:muffle-conditions sb-ext:compiler-note))
       (with-matrix (m pobj)
         (print-unreadable-object (pobj stream)
           (format

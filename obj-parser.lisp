@@ -10,6 +10,9 @@
    (faces :accessor faces
           :initform nil)))
 
+(defgeneric set-coords (coord-type obj data))
+(defgeneric set-faces (obj data))
+
 (defun obj-file-array ()
   (make-array 1
               :fill-pointer 1

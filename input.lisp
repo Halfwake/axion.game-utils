@@ -1,5 +1,10 @@
 (in-package :axion.game-utils)
 
+(defgeneric key-down (scancode repeat-p &key))
+(defgeneric key-up (scancode repeat-p &key))
+(defgeneric mouse-down (button coords &key))
+(defgeneric mouse-up (button coords &key))
+
 (defmethod key-down :after (scancode repeat-p &key (debugp nil))
   (when (and (not repeat-p) debugp)
     (format t "Key pressed: ~a~%" scancode)))

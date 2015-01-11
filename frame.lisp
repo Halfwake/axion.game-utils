@@ -21,6 +21,8 @@
              :initarg :interval
              :initform 5.0)))
 
+(defgeneric step-frame (frame &optional debugp))
+
 (defun running-time ()
   (get-internal-real-time))
 
