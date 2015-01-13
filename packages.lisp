@@ -75,6 +75,7 @@
            :move-by
            :rotate-by
            :rpms->radians
+           :line-midpoint
            :point-line-distance
            :axial->cube
            :cube->axial
