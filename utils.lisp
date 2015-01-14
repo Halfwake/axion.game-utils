@@ -35,7 +35,9 @@
          (data (png-read:image-data image))
          (width (array-dimension data 1))
          (height (array-dimension data 0))
-         (image-data (make-array (* width height 4)
+         (size (array-dimension data 2))
+         (colors (if (= size 4) :rgba :rgb))
+         (image-data (make-array (* width height size)
                                  :element-type '(unsigned-byte 8)
                                  :displaced-to data))
          (texture (car (gl:gen-textures 1))))
@@ -43,9 +45,14 @@
     (gl:tex-parameter :texture-2d :generate-mipmap t)
     (gl:tex-parameter :texture-2d :texture-max-anisotropy-ext 16)
     (gl:tex-parameter :texture-2d :texture-min-filter :linear-mipmap-linear)
-    (gl:tex-image-2d :texture-2d 0
-                     :rgba width height 0
-                     :rgba :unsigned-byte
+    (gl:tex-image-2d :texture-2d
+                     0
+                     colors
+                     width
+                     height
+                     0
+                     colors
+                     :unsigned-byte
                      image-data)
     texture))
 
