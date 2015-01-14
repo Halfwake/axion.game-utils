@@ -26,35 +26,36 @@
 (defun load-texture (filename textures)
   (let* ((resource (get-path "res" filename))
          (texture-id (gethash resource textures)))
-    (or texture-id
-        (setf (gethash resource textures)
-              (image->texture resource)))))
+    (multiple-value-bind (id size) (image->texture resource)
+      (or texture-id
+          (setf (gethash resource textures) id))
+      (values id size))))
 
 (defun image->texture (filename)
   (let* ((image (png-read:read-png-file filename))
          (data (png-read:image-data image))
-         (width (array-dimension data 1))
-         (height (array-dimension data 0))
+         (width (array-dimension data 0))
+         (height (array-dimension data 1))
          (size (array-dimension data 2))
          (colors (if (= size 4) :rgba :rgb))
          (image-data (make-array (* width height size)
                                  :element-type '(unsigned-byte 8)
                                  :displaced-to data))
-         (texture (car (gl:gen-textures 1))))
-    (gl:bind-texture :texture-2d texture)
+         (id (car (gl:gen-textures 1))))
+    (gl:bind-texture :texture-2d id)
     (gl:tex-parameter :texture-2d :generate-mipmap t)
     (gl:tex-parameter :texture-2d :texture-max-anisotropy-ext 16)
     (gl:tex-parameter :texture-2d :texture-min-filter :linear-mipmap-linear)
     (gl:tex-image-2d :texture-2d
                      0
                      colors
-                     width
                      height
+                     width
                      0
                      colors
                      :unsigned-byte
                      image-data)
-    texture))
+    (values id (make-vector width height))))
 
 (defun mouse-coords (win-height mouse-x mouse-y)
   (let ((mouse-y (- win-height mouse-y)))
