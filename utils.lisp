@@ -34,12 +34,14 @@
 (defun image->texture (filename)
   (let* ((image (png-read:read-png-file filename))
          (data (png-read:image-data image))
+         (depth (png-read:bit-depth image))
          (width (array-dimension data 0))
          (height (array-dimension data 1))
          (size (array-dimension data 2))
          (colors (if (= size 4) :rgba :rgb))
+         (pixel-type (if (= depth 8) :unsigned-byte :unsigned-short))
          (image-data (make-array (* width height size)
-                                 :element-type '(unsigned-byte 8)
+                                 :element-type `(unsigned-byte ,depth)
                                  :displaced-to data))
          (id (car (gl:gen-textures 1))))
     (gl:bind-texture :texture-2d id)
@@ -53,7 +55,7 @@
                      width
                      0
                      colors
-                     :unsigned-byte
+                     pixel-type
                      image-data)
     (values id (make-vector width height))))
 
