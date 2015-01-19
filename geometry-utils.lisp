@@ -18,11 +18,32 @@
              (float (* rpms (/ (/ (* 2 pi) 60) hz)) 1.0))))
     (apply #'make-vector (map 'list #'radians rotation))))
 
+(defun line-direction (start end)
+  "Gives the direction of the line segment represented by 2 points"
+  (vector-subtract end start))
+
 (defun line-midpoint (start end)
   "Calculate the mid point of a line segment"
-  (make-vector (/ (+ (vx start) (vx end)) 2)
-               (/ (+ (vy start) (vy end)) 2)
-               (/ (+ (vz start) (vz end)) 2)))
+  (vector-translate start
+                    (line-direction start end)
+                    (/ (vector-distance start end) 2)))
+
+(defun project-plane (vec plane-normal)
+  "Project a vector onto the plane perpendicular to plane-normal"
+  (let* ((plane-normal (vector-normalize plane-normal))
+         (dot (vector-dot vec plane-normal))
+         (scaled (vector-scale plane-normal dot)))
+    (vector-subtract vec scaled)))
+
+(defun line-plane-intersect (line-start line-end plane-point plane-normal)
+  "Return the point that a line intersects with a plane"
+  (let ((direction (vector-normalize (line-direction line-start line-end))))
+    (unless (zerop (vector-dot direction plane-normal))
+      (vector-normalize-* plane-normal)
+      (let* ((w (vector-subtract line-start plane-point))
+             (s (/ (- (vector-dot plane-normal w))
+                   (vector-dot plane-normal direction))))
+        (vector-translate line-start direction s)))))
 
 (defun point-line-distance (line point)
   "Calculate the shortest distance between a line and a point"

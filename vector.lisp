@@ -145,6 +145,14 @@
   "Scale the length of a vector as a new vector"
   (vector-scale-* (vector-copy src) scalar))
 
+(defun vector-reverse-* (src)
+  "Compute the vector pointing in the opposite direction"
+  (vector-scale-* src -1.0))
+
+(defun vector-reverse (src)
+  "Compute the vector pointing in the opposite direction as a new vector"
+  (vector-reverse-* (vector-copy src)))
+
 (declaim (ftype (function (ax-vector) single-float) vector-length))
 (declaim (inline vector-length))
 (defun vector-length (src)
@@ -229,3 +237,44 @@
     (sqrt (+ (* x x)
              (* y y)
              (* z z)))))
+
+(declaim (ftype (function (ax-vector ax-vector single-float &optional boolean)
+                          ax-vector) vector-translate-*))
+(defun vector-translate-* (src direction distance &optional normalizep)
+  "Calculate a vector that is translated along a directional vector by the
+   given distance"
+  (let ((direction (if normalizep (vector-normalize direction) direction)))
+    (vector-add-* src (vector-scale direction distance) src)))
+
+(declaim (ftype (function (ax-vector ax-vector single-float &optional boolean)
+                          ax-vector) vector-translate))
+(defun vector-translate (src direction distance &optional normalizep)
+  "Calculate a vector that is translated along a directional vector by the
+   given distance, as a new vector"
+  (vector-translate-* (vector-copy src) direction distance normalizep))
+
+(declaim (ftype (function (ax-vector)) vector-zero-p))
+(defun vector-zero-p (src)
+  "Check if the vector's components are of zero length"
+  (and (zerop (vx src))
+       (zerop (vy src))
+       (zerop (vz src))))
+
+(declaim (ftype (function (ax-vector ax-vector &key (:tolerance single-float)))
+                vector-close-p))
+(defun vector-close-p (src1 src2 &key (tolerance *tolerance*))
+  "Checks if the distance between two points is below the tolerance level"
+  (< (vector-distance src1 src2) tolerance))
+
+(declaim (ftype (function (ax-vector ax-vector)) vector-direction=))
+(defun vector-direction= (src1 src2)
+  "Check if two vectors are pointing in the same direction"
+  (and (not (or (vector-zero-p src1) (vector-zero-p src2)))
+       (vector-close-p (vector-normalize src1)
+                       (vector-normalize src2))))
+
+(declaim (ftype (function (ax-vector ax-vector)) vector-parallel-p))
+(defun vector-parallel-p (src1 src2)
+  "Check if two vectors are parallel to each other"
+  (or (vector-direction= src1 src2)
+      (vector-direction= src1 (vector-reverse src2))))

@@ -104,12 +104,13 @@
   "Create a new identity matrix"
   (matrix-identity-* (make-matrix)))
 
-(declaim (ftype (function (ax-matrix) ax-matrix) matrix-stabilize-*))
-(defun matrix-stabilize-* (src)
-  "Force each matrix element to 0 if below the tolerance level of 1e-7"
+(declaim (ftype (function (ax-matrix &key (:tolerance single-float)) ax-matrix)
+                matrix-stabilize-*))
+(defun matrix-stabilize-* (src &key (tolerance *tolerance*))
+  "Force each matrix element to 0 if below the tolerance level"
   (with-matrix (m src)
     (macrolet ((stabilize (place)
-                 `(when (< (abs ,place) 1e-7)
+                 `(when (< (abs ,place) tolerance)
                     (setf ,place 0.0))))
       (stabilize m00)
       (stabilize m01)
@@ -129,10 +130,11 @@
       (stabilize m33)))
   src)
 
-(declaim (ftype (function (ax-matrix) ax-matrix) matrix-stabilize))
-(defun matrix-stabilize (src)
+(declaim (ftype (function (ax-matrix &key (:tolerance single-float)) ax-matrix)
+                matrix-stabilize))
+(defun matrix-stabilize (src &key (tolerance *tolerance*))
   "Force each matrix element to 0 if below the tolerance level as a new matrix"
-  (matrix-stabilize-* (matrix-copy src)))
+  (matrix-stabilize-* (matrix-copy src) :tolerance tolerance))
 
 (declaim (ftype (function (ax-matrix ax-matrix ax-matrix) ax-matrix)
                 matrix-multiply-*))

@@ -31,6 +31,8 @@
            :vector-multiply
            :vector-scale-*
            :vector-scale
+           :vector-reverse-*
+           :vector-reverse
            :vector-length
            :vector-normalize-*
            :vector-normalize
@@ -42,6 +44,12 @@
            :vector-cross
            :vector-dot
            :vector-distance
+           :vector-translate-*
+           :vector-translate
+           :vector-zero-p
+           :vector-close-p
+           :vector-direction=
+           :vector-parallel-p
            :ax-matrix
            :make-matrix
            :matrix-copy-*
@@ -75,7 +83,10 @@
            :move-by
            :rotate-by
            :rpms->radians
+           :line-direction
            :line-midpoint
+           :project-plane
+           :line-plane-intersect
            :point-line-distance
            :axial->cube
            :cube->axial
