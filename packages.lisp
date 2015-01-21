@@ -83,6 +83,9 @@
            :move-by
            :rotate-by
            :rpms->radians
+           :get-rotation
+           :set-direction
+           :get-angle
            :line-direction
            :line-midpoint
            :project-plane
