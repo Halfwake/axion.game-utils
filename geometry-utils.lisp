@@ -46,7 +46,7 @@
   "Calculate the angle between two vectors"
   (let ((dot (vector-dot vec1 vec2))
         (len (* (vector-length vec1) (vector-length vec2))))
-    (if (> len 0)
+    (if (not (= len 0))
       (acos (clamp (/ dot len) -1 1))
       0.0)))
 
