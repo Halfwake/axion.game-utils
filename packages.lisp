@@ -83,6 +83,7 @@
            :move-by
            :rotate-by
            :rpms->radians
+           :vector-floats
            :get-rotation
            :set-direction
            :get-angle

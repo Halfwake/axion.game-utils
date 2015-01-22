@@ -18,6 +18,10 @@
              (float (* rpms (/ (/ (* 2 pi) 60) hz)) 1.0))))
     (apply #'make-vector (map 'list #'radians rotation))))
 
+(defun vector-floats (data)
+  "Converts a sequence to an ax-vector of floats"
+  (apply #'make-vector (map 'list #'float data)))
+
 (defun get-rotation (matrix &key axis)
   "Get the rotation vector associated with the given axis, or return
    multiple values of each axis if no axis is given"
@@ -34,13 +38,15 @@
 (defun set-direction (direction)
   "Create a vector rotated along the z axis to be facing the given direction"
   (let ((start (/ (* pi 2) -12))
-        (inc (/ (* pi 2) 6)))
+        (inc (/ (* pi 2) 6))
+        (result (make-vector)))
     (loop with i = 0
           for d in '(:ne :e :se :sw :w :nw)
           for z = (+ start (* inc (- i)))
           do (incf i)
              (when (eq d direction)
-               (return (make-vector 0 0 z))))))
+               (setf (vz result) (float z 1.0))))
+    result))
 
 (defun get-angle (vec1 vec2)
   "Calculate the angle between two vectors"
