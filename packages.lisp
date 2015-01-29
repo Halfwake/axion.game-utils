@@ -99,6 +99,7 @@
            :hex-distance
            :hex-round
            :hex-neighbor
+           :hex-neighbors-p
            :load-obj
            :key-down
            :key-up

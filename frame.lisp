@@ -8,7 +8,7 @@
    (before :accessor before
            :initform (running-time))
    (frame-time :accessor frame-time
-          :initform 0)
+               :initform 0)
    (accumulator :accessor accumulator
                 :initform 0)
    (units-per-sec :reader units-per-sec

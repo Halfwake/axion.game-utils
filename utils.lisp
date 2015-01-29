@@ -2,7 +2,7 @@
 
 (defvar *system* nil)
 (defvar *executablep* nil)
-(defvar *tolerance* 0.001)
+(defvar *tolerance* 1e-7)
 
 #+sbcl
 (defun get-running-path ()

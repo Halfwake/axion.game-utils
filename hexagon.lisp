@@ -66,3 +66,16 @@
          (angle (atan (vy direction) (vx direction)))
          (index (mod (+ 6 (round (/ (* 6 angle) (* pi 2)))) 6)))
     (cube->hex (vector-add (hex->cube src) (aref directions index)))))
+
+(defun hex-neighbors-p (src target)
+  "Check if two hexagon coordinates are neighbors"
+  (let ((directions `#(,(make-vector -1 -1)
+                       ,(make-vector 1 -1)
+                       ,(make-vector 1 0)
+                       ,(make-vector 1 1)
+                       ,(make-vector -1 1)
+                       ,(make-vector -1 0))))
+    (loop for direction across directions
+          for neighbor = (hex-neighbor src direction)
+          do (when (equalp target neighbor)
+               (return t)))))
