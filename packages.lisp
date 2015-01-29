@@ -107,6 +107,5 @@
            :mouse-up
            :frame
            :step-frame
-           :units-per-sec
            :dt
            :accumulator))

@@ -13,8 +13,8 @@
                :initform 0)
    (accumulator :accessor accumulator
                 :initform 0)
-   (units-per-sec :reader units-per-sec
-                  :initform internal-time-units-per-second)
+   (ups :reader ups
+        :initform internal-time-units-per-second)
    (frames :accessor frames
            :initform 0)
    (interval :reader interval
@@ -33,16 +33,15 @@
                dt
                frame-time
                accumulator
-               units-per-sec
-               update-hz
+               ups
                frames
                interval) frame
     (setf now (running-time)
-          frame-time (/ (- now before) units-per-sec))
+          frame-time (/ (- now before) ups))
     (incf accumulator frame-time)
     (setf before now)
     (incf frames)
-    (let ((seconds (/ (- now init) units-per-sec)))
+    (let ((seconds (/ (- now init) ups)))
       (when (and debugp (> seconds interval))
         (format t "FPS: ~,2f~%" (/ frames (float interval)))
         (setf frames 0
