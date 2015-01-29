@@ -108,5 +108,5 @@
            :frame
            :step-frame
            :units-per-sec
-           :update-hz
+           :dt
            :accumulator))

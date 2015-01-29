@@ -10,12 +10,12 @@
   (unless rotatingp
     (vector-clear vec)))
 
-(defun rpms->radians (rotation hz)
-  "Calculate radians from a rotation vector in RPMs"
+(defun rpms->radians (rotation dt)
+  "Calculate radians per delta time from a rotation vector in RPMs"
   (flet ((radians (rpms)
            (if (zerop rpms)
              0.0
-             (float (* rpms (/ (/ (* 2 pi) 60) hz)) 1.0))))
+             (float (* (/ (* rpms 2 pi) 60) dt) 1.0))))
     (apply #'make-vector (map 'list #'radians rotation))))
 
 (defun vector-floats (data)
