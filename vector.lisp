@@ -243,8 +243,9 @@
 (defun vector-translate-* (src direction distance &optional normalizep)
   "Calculate a vector that is translated along a directional vector by the
    given distance"
-  (let ((direction (if normalizep (vector-normalize direction) direction)))
-    (vector-add-* src (vector-scale direction distance) src)))
+  (when normalizep
+    (vector-normalize-* direction))
+  (vector-add-* src (vector-scale direction distance) src))
 
 (declaim (ftype (function (ax-vector ax-vector single-float &optional boolean)
                           ax-vector) vector-translate))

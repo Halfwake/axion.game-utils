@@ -68,13 +68,12 @@
 
 (defun line-plane-intersect (line-start line-end plane-point plane-normal)
   "Return the point that a line intersects with a plane"
-  (let ((direction (line-direction line-start line-end)))
-    (unless (zerop (vector-dot direction plane-normal))
-      (vector-normalize-* plane-normal)
-      (let* ((w (vector-subtract line-start plane-point))
-             (s (/ (- (vector-dot plane-normal w))
-                   (vector-dot plane-normal direction))))
-        (vector-translate line-start direction s)))))
+  (let* ((direction (vector-subtract line-start line-end))
+         (dot-dir-plane (vector-dot direction plane-normal))
+         (plane-line (vector-subtract line-start plane-point)))
+    (unless (zerop dot-dir-plane)
+      (let ((p (/ (- (vector-dot plane-normal plane-line)) dot-dir-plane)))
+        (vector-translate line-start direction p)))))
 
 (defun point-line-distance (start end point)
   "Calculate the shortest distance between a line and a point"
