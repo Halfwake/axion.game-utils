@@ -12,6 +12,13 @@
   #-(or cmucl sbcl ccl)
   (gl:mult-transpose-matrix matrix))
 
-(defun gl-draw-arrays (vao mode count)
-  (gl:bind-vertex-array vao)
-  (gl:draw-arrays mode 0 count))
+(defun gl-draw-arrays (vao mode count blendp)
+  (flet ((draw (vao mode count)
+           (gl:bind-vertex-array vao)
+           (gl:draw-arrays mode 0 count)))
+    (if blendp
+      (progn
+        (gl:enable :blend)
+        (draw vao mode count)
+        (gl:disable :blend))
+      (draw vao mode count))))

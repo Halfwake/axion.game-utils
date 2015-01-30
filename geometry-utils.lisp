@@ -13,9 +13,7 @@
 (defun rpms->radians (rotation dt)
   "Calculate radians per delta time as a vector from a sequence of RPMs"
   (flet ((radians (rpms)
-           (if (zerop rpms)
-             0.0
-             (float (* (/ (* rpms 2 pi) 60) dt) 1.0))))
+           (* (/ (* rpms 2 pi) 60) dt)))
     (apply #'make-vector (map 'list #'radians rotation))))
 
 (defun vector-floats (data)
