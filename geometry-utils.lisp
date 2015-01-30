@@ -11,7 +11,7 @@
     (vector-clear vec)))
 
 (defun rpms->radians (rotation dt)
-  "Calculate radians per delta time from a rotation vector in RPMs"
+  "Calculate radians per delta time as a vector from a sequence of RPMs"
   (flet ((radians (rpms)
            (if (zerop rpms)
              0.0
@@ -23,8 +23,8 @@
   (apply #'make-vector (map 'list #'float data)))
 
 (defun get-rotation (matrix &key axis)
-  "Get the rotation vector associated with the given axis, or return
-   multiple values of each axis if no axis is given"
+  "Get the rotation vector associated with the given axis from a matrix, or
+   return multiple values of each axis if no axis is given"
   (with-matrix (m matrix)
     (let ((x (make-vector m00 m10 m20))
           (y (make-vector m01 m11 m21))
@@ -36,7 +36,7 @@
         ((nil) (values x y z))))))
 
 (defun set-direction (direction)
-  "Create a vector rotated along the z axis to be facing the given direction"
+  "Create a vector rotated along the Z axis to be facing the given direction"
   (let ((start (/ (* pi 2) -12))
         (inc (/ (* pi 2) 6))
         (result (make-vector)))
@@ -65,13 +65,6 @@
   (vector-translate start
                     (line-direction start end)
                     (/ (vector-distance start end) 2)))
-
-(defun project-plane (vec plane-normal)
-  "Project a vector onto the plane perpendicular to plane-normal"
-  (let* ((plane-normal (vector-normalize plane-normal))
-         (dot (vector-dot vec plane-normal))
-         (scaled (vector-scale plane-normal dot)))
-    (vector-subtract vec scaled)))
 
 (defun line-plane-intersect (line-start line-end plane-point plane-normal)
   "Return the point that a line intersects with a plane"
