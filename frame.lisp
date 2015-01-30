@@ -41,8 +41,10 @@
     (incf accumulator frame-time)
     (setf before now)
     (incf frames)
-    (let ((seconds (/ (- now init) ups)))
+    (let* ((seconds (/ (- now init) ups))
+           (fps (/ frames (float interval)))
+           (ms (/ ups fps)))
       (when (and debugp (> seconds interval))
-        (format t "FPS: ~,2f~%" (/ frames (float interval)))
+        (format t "~,3f ms/f, ~,2f fps~%" ms fps)
         (setf frames 0
               init (running-time))))))
