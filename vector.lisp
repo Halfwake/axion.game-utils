@@ -84,7 +84,7 @@
 (declaim (ftype (function (ax-vector) ax-vector) vector-negate))
 (defun vector-negate (src)
   "Negate a vector's components as a new vector"
-  (vector-negate (vector-copy src)))
+  (vector-negate-* (vector-copy src)))
 
 (declaim (ftype (function (ax-vector ax-vector ax-vector) ax-vector)
                 vector-add-*))
