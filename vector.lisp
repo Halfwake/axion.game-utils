@@ -28,7 +28,7 @@
   (if (null binds)
     `(progn ,@body)
     `(with-vector ,(car binds)
-       (with-vectors ,(cdr binds) ,@body))))
+                  (with-vectors ,(cdr binds) ,@body))))
 
 (defun vector-test ()
   "Time the result of multiplying 1 million vectors"
@@ -64,7 +64,6 @@
   src)
 
 (declaim (ftype (function (ax-vector) list) vector->list))
-(declaim (inline vector->list))
 (defun vector->list (src)
   "Convert a vector to a list of its components"
   (with-vector (s src)
@@ -148,10 +147,13 @@
   "Scale the length of a vector as a new vector"
   (vector-scale-* (vector-copy src) scalar))
 
+(declaim (ftype (function (ax-vector) ax-vector) vector-reverse-*))
+(declaim (inline vector-reverse-*))
 (defun vector-reverse-* (src)
   "Compute the vector pointing in the opposite direction"
   (vector-scale-* src -1.0))
 
+(declaim (ftype (function (ax-vector) ax-vector) vector-reverse))
 (defun vector-reverse (src)
   "Compute the vector pointing in the opposite direction as a new vector"
   (vector-reverse-* (vector-copy src)))
@@ -185,6 +187,7 @@
   (vector-normalize-* (vector-copy src)))
 
 (declaim (ftype (function (ax-vector) ax-vector) vector-round-*))
+(declaim (inline vector-round-*))
 (defun vector-round-* (src)
   (with-vector (s src)
     (psetf sx (fround sx)
@@ -197,6 +200,7 @@
   (vector-round-* (vector-copy src)))
 
 (declaim (ftype (function (ax-vector) ax-vector) vector-positive-*))
+(declaim (inline vector-positive-*))
 (defun vector-positive-* (src)
   "Set all of a vector's components to be positive"
   (with-vector (s src)
@@ -227,7 +231,6 @@
   (vector-cross-* src1 src2 (make-vector)))
 
 (declaim (ftype (function (ax-vector ax-vector) single-float) vector-dot))
-(declaim (inline vector-dot))
 (defun vector-dot (src1 src2)
   "Compute the dot product of two vectors"
   (with-vectors ((s1 src1) (s2 src2))
@@ -246,12 +249,13 @@
 (defun vector-distance (src1 src2)
   "Compute the Euclidean distance between two vectors"
   (with-vectors ((s1 src1) (s2 src2))
-    (sqrt (+ (expt (- s2x s1x) 2)
-             (expt (- s2y s1y) 2)
-             (expt (- s2z s1z) 2)))))
+    (sqrt (+ (expt (- (vx src2) (vx src1)) 2)
+             (expt (- (vy src2) (vy src1)) 2)
+             (expt (- (vz src2) (vz src2)) 2)))))
 
 (declaim (ftype (function (ax-vector ax-vector single-float &optional boolean)
                           ax-vector) vector-translate-*))
+(declaim (inline vector-translate-*))
 (defun vector-translate-* (src direction distance &optional normalizep)
   "Calculate a vector that is translated along a directional vector by the
    given distance"

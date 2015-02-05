@@ -16,8 +16,6 @@
            :vy
            :vz
            :make-vector
-           :with-vector
-           :with-vectors
            :vector-copy-*
            :vector-copy
            :vector-clear
