@@ -17,7 +17,7 @@
   (make-array 1
               :fill-pointer 1
               :adjustable t
-              :initial-element (make-vector)))
+              :initial-element (vec)))
 
 (defun load-obj (obj-name)
   (let ((obj (make-instance 'obj-file))
@@ -37,7 +37,7 @@
   (let ((coords (format nil "~{~a ~}" data)))
     (vector-push-extend
       (with-input-from-string (in coords)
-        (apply #'make-vector
+        (apply #'vec
                (loop for coord = (read in nil nil)
                      while coord
                      collect coord)))
@@ -50,8 +50,8 @@
         for texture = (aref (textures obj) uv)
         for normal = (aref (normals obj) n)
         do (push (list
-                   (vector->list normal)
-                   (vector->list vertex)
-                   (vector->list texture)
+                   (vlist normal)
+                   (vlist vertex)
+                   (vlist texture)
                    '(1 1 1))
                  (faces obj))))

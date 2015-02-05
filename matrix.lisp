@@ -183,7 +183,7 @@
   "Convert all rows into columns, and all columns into rows, as a new matrix"
   (matrix-transpose-* src (make-matrix)))
 
-(declaim (ftype (function (ax-vector ax-matrix ax-matrix) ax-matrix)
+(declaim (ftype (function (vec ax-matrix ax-matrix) ax-matrix)
                 matrix-rotate-*))
 (defun matrix-rotate-* (vec src dest)
   "Apply a rotation transformation to a matrix"
@@ -222,12 +222,12 @@
                  m22 c)))))
   (matrix-stabilize-* src))
 
-(declaim (ftype (function (ax-vector ax-matrix) ax-matrix) matrix-rotate))
+(declaim (ftype (function (vec ax-matrix) ax-matrix) matrix-rotate))
 (defun matrix-rotate (vec src)
   "Apply a rotation transformation to a matrix as a new matrix"
   (matrix-rotate-* vec src (matrix-identity)))
 
-(declaim (ftype (function (ax-vector ax-matrix) ax-matrix) matrix-translate-*))
+(declaim (ftype (function (vec ax-matrix) ax-matrix) matrix-translate-*))
 (defun matrix-translate-* (vec src)
   "Apply a translation transformation to a matrix"
   (with-matrix (m src)
@@ -236,12 +236,12 @@
            m23 (vz vec)))
   src)
 
-(declaim (ftype (function (ax-vector) ax-matrix) matrix-translate))
+(declaim (ftype (function (vec) ax-matrix) matrix-translate))
 (defun matrix-translate (vec)
   "Apply a translation transformation to a matrix as a new matrix"
   (matrix-translate-* vec (matrix-identity)))
 
-(declaim (ftype (function (ax-vector ax-matrix) ax-matrix) matrix-scale-*))
+(declaim (ftype (function (vec ax-matrix) ax-matrix) matrix-scale-*))
 (defun matrix-scale-* (vec src)
   "Apply a scale transformation to a matrix"
   (matrix-identity-* src)
@@ -251,16 +251,16 @@
            m22 (vz vec)))
   src)
 
-(declaim (ftype (function (ax-vector) ax-matrix) matrix-scale))
+(declaim (ftype (function (vec) ax-matrix) matrix-scale))
 (defun matrix-scale (vec)
   "Apply a scale transformation to a matrix as a new matrix"
   (matrix-scale-* vec (matrix-identity)))
 
-(declaim (ftype (function (ax-matrix double-float ax-vector) ax-matrix)
+(declaim (ftype (function (ax-matrix double-float vec) ax-matrix)
                 matrix-rotate-around-*))
 (defun matrix-rotate-around-* (src angle axis)
   "Rotate a transformation matrix around an axis by the given angle"
-  (let* ((axis (vector-normalize axis))
+  (let* ((axis (vnorm axis))
          (c (cos angle))
          (1-c (- 1.0 c))
          (s (sin angle))
@@ -292,14 +292,14 @@
              m33 1.0))
     (matrix-stabilize-* src)))
 
-(declaim (ftype (function (double-float ax-vector) ax-matrix)
+(declaim (ftype (function (double-float vec) ax-matrix)
                 matrix-rotate-around))
 (defun matrix-rotate-around (angle axis)
   "Rotate a transformation matrix around an axis by the given angle, as
    a new matrix."
   (matrix-rotate-around-* (matrix-identity) angle axis))
 
-(declaim (ftype (function (ax-vector ax-matrix) ax-vector)
+(declaim (ftype (function (vec ax-matrix) vec)
                 matrix-get-translation-*))
 (defun matrix-get-translation-* (vec src)
   "Put the translation column of a matrix into the given vector"
@@ -309,10 +309,10 @@
            (vz vec) m23))
   vec)
 
-(declaim (ftype (function (ax-matrix) ax-vector) matrix-get-translation))
+(declaim (ftype (function (ax-matrix) vec) matrix-get-translation))
 (defun matrix-get-translation (src)
   "Put the translation column of a matrix into a new vector"
-  (matrix-get-translation-* (make-vector) src))
+  (matrix-get-translation-* (vec) src))
 
 (declaim (ftype (function (ax-matrix ax-matrix) ax-matrix)
                 matrix-copy-rotation-*))
@@ -329,7 +329,7 @@
   "Copy the rotation transformation to a new matrix"
   (matrix-copy-rotation-* src (matrix-identity)))
 
-(declaim (ftype (function (ax-matrix ax-vector ax-vector) ax-vector)
+(declaim (ftype (function (ax-matrix vec vec) vec)
                 matrix-apply-*))
 (defun matrix-apply-* (src point dest)
   "Multiply a transformation matrix by a point"
@@ -348,10 +348,10 @@
                         (* m23 1.0))))
   dest)
 
-(declaim (ftype (function (ax-matrix ax-vector) ax-vector) matrix-apply))
+(declaim (ftype (function (ax-matrix vec) vec) matrix-apply))
 (defun matrix-apply (src point)
   "Multiply a transformation matrix by a point as a new vector"
-  (matrix-apply-* src point (make-vector)))
+  (matrix-apply-* src point (vec)))
 
 (declaim (ftype (function (ax-matrix ax-matrix) ax-matrix)
                 matrix-convert-to-opengl-*))

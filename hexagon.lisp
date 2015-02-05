@@ -6,19 +6,19 @@
   (let* ((x (vy src))
          (z (vx src))
          (y (- (- x) z)))
-    (make-vector x y z)))
+    (vec x y z)))
 
 (defun cube->axial (src)
   "Convert a 3-D vector representing cube coordinates to a 2-D vector
    representing axial coordinates"
-  (make-vector (vz src) (vx src)))
+  (vec (vz src) (vx src)))
 
 (defun cube->hex (src)
   "Convert a 3-D vector representing cube coordinates to a 2-D vector
    representing hexagon offset coordinates"
   (let* ((y (vz src))
          (x (+ (vx src) (/ (- y (mod y 2)) 2))))
-    (make-vector x y)))
+    (vec x y)))
 
 (defun hex->cube (src)
   "Convert a 2-D vector representing hexagon offset coordinates to a 3-D vector
@@ -26,7 +26,7 @@
   (let* ((z (vy src))
          (x (- (vx src) (/ (- z (mod z 2)) 2)))
          (y (- (- x) z)))
-    (make-vector x y z)))
+    (vec x y z)))
 
 (defun hex-distance (src dest)
   "Calculate the distance in tiles from a pair of vectors representing
@@ -41,8 +41,8 @@
 (defun hex-round (src)
   "Calculate the nearest hexagon from a 3-D vector respresenting cube
    coordinates"
-  (let* ((dest (vector-round (hex->cube src)))
-         (diff (vector-positive (vector-subtract dest src))))
+  (let* ((dest (vround (hex->cube src)))
+         (diff (vpos (vsub dest src))))
     (cond
       ((and (> (vx diff) (vy diff))
             (> (vx diff) (vz diff)))
@@ -57,24 +57,24 @@
    coordinate and a 2-D directional vector.
    Example: Hexagon 2,2 with direction -1,1 (northwest) would return the
    coordinates 1,1"
-  (let* ((directions `#(,(make-vector 1 -1 0)
-                        ,(make-vector 1 0 -1)
-                        ,(make-vector 0 1 -1)
-                        ,(make-vector -1 1 0)
-                        ,(make-vector -1 0 1)
-                        ,(make-vector 0 -1 1)))
+  (let* ((directions `#(,(vec 1 -1 0)
+                        ,(vec 1 0 -1)
+                        ,(vec 0 1 -1)
+                        ,(vec -1 1 0)
+                        ,(vec -1 0 1)
+                        ,(vec 0 -1 1)))
          (angle (atan (vy direction) (vx direction)))
          (index (mod (+ 6 (round (/ (* 6 angle) (* pi 2)))) 6)))
-    (cube->hex (vector-add (hex->cube src) (aref directions index)))))
+    (cube->hex (vadd (hex->cube src) (aref directions index)))))
 
 (defun hex-neighbors-p (src target)
   "Check if two hexagon coordinates are neighbors"
-  (let ((directions `#(,(make-vector -1 -1)
-                       ,(make-vector 1 -1)
-                       ,(make-vector 1 0)
-                       ,(make-vector 1 1)
-                       ,(make-vector -1 1)
-                       ,(make-vector -1 0))))
+  (let ((directions `#(,(vec -1 -1)
+                       ,(vec 1 -1)
+                       ,(vec 1 0)
+                       ,(vec 1 1)
+                       ,(vec -1 1)
+                       ,(vec -1 0))))
     (loop for direction across directions
           for neighbor = (hex-neighbor src direction)
           do (when (equalp target neighbor)

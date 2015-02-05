@@ -11,45 +11,44 @@
            :gl-get-id
            :gl-send-matrix
            :gl-draw-arrays
-           :ax-vector
+           :vec
            :vx
            :vy
            :vz
-           :make-vector
-           :vector-copy-*
-           :vector-copy
-           :vector-clear
-           :vector->list
-           :vector-negate-*
-           :vector-negate
-           :vector-add-*
-           :vector-add
-           :vector-subtract-*
-           :vector-subtract
-           :vector-multiply-*
-           :vector-multiply
-           :vector-scale-*
-           :vector-scale
-           :vector-reverse-*
-           :vector-reverse
-           :vector-length
-           :vector-normalize-*
-           :vector-normalize
-           :vector-round-*
-           :vector-round
-           :vector-positive-*
-           :vector-positive
-           :vector-cross-*
-           :vector-cross
-           :vector-dot
-           :vector-box
-           :vector-distance
-           :vector-translate-*
-           :vector-translate
-           :vector-zero-p
-           :vector-close-p
-           :vector-direction=
-           :vector-parallel-p
+           :vcp
+           :vcp*
+           :vclr*
+           :vlist
+           :vneg
+           :vneg*
+           :vadd
+           :vadd*
+           :vsub
+           :vsub*
+           :vmult
+           :vmult*
+           :vscale
+           :vscale*
+           :vrev
+           :vrev*
+           :vlen
+           :vnorm
+           :vnorm*
+           :vround
+           :vround*
+           :vpos
+           :vpos*
+           :vcross
+           :vcross*
+           :vdot
+           :vbox
+           :vdist
+           :vtrans
+           :vtrans*
+           :vzerop
+           :vclosep
+           :vdirp
+           :vparp
            :ax-matrix
            :make-matrix
            :matrix-copy-*

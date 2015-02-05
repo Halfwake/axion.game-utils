@@ -58,13 +58,13 @@
                      colors
                      pixel-type
                      image-data)
-    (values id (make-vector width height))))
+    (values id (vec width height))))
 
 (defun mouse-coords (win-height mouse-x mouse-y)
   (let ((mouse-y (- win-height mouse-y)))
-    (make-vector mouse-x mouse-y)))
+    (vec mouse-x mouse-y)))
 
 (defun unproject-vector (x y z)
   (multiple-value-bind (x y z)
     (glu:un-project x y (float z))
-    (make-vector x y z)))
+    (vec x y z)))
