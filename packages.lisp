@@ -16,10 +16,11 @@
            :vy
            :vz
            :make-vector
+           :with-vector
+           :with-vectors
            :vector-copy-*
            :vector-copy
            :vector-clear
-           :vector-modify
            :vector->list
            :vector-negate-*
            :vector-negate
@@ -43,6 +44,7 @@
            :vector-cross-*
            :vector-cross
            :vector-dot
+           :vector-box
            :vector-distance
            :vector-translate-*
            :vector-translate
