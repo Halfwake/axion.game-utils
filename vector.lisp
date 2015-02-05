@@ -282,7 +282,7 @@
   "Calculate a vector that is translated along a directional vector by the
    given distance"
   (when normalizep
-    (vnorm* direction))
+    (%vector-normalize direction))
   (%vector-add src (%vector-scale direction distance) src))
 
 (defun vtrans (src direction distance &optional normalizep)
