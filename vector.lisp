@@ -317,7 +317,7 @@
 (defun vtrans* (src direction distance &optional normalizep)
   (%vector-translate src direction distance normalizep))
 
-(declaim (ftype (function (vec)) %vector-zero-p))
+(declaim (ftype (function (vec) boolean) %vector-zero-p))
 (declaim (inline %vector-zero-p))
 (defun %vector-zero-p (src)
   "Check if all of a vector's components are of zero length"
@@ -330,7 +330,7 @@
 (defun vzerop (src)
   (%vector-zero-p src))
 
-(declaim (ftype (function (vec vec &key (:tolerance single-float)))
+(declaim (ftype (function (vec vec &key (:tolerance single-float)) boolean)
                 %vector-close-p))
 (declaim (inline %vector-close-p))
 (defun %vector-close-p (src1 src2 &key (tolerance *tolerance*))
@@ -341,7 +341,7 @@
 (defun vclosep (src1 src2 &key (tolerance *tolerance*))
   (%vector-close-p src1 src2 :tolerance tolerance))
 
-(declaim (ftype (function (vec vec)) %vector-direction-p))
+(declaim (ftype (function (vec vec) boolean) %vector-direction-p))
 (declaim (inline %vector-direction-p))
 (defun %vector-direction-p (src1 src2)
   "Check if two vectors are pointing in the same direction"
@@ -353,7 +353,7 @@
 (defun vdirp (src1 src2)
   (%vector-direction-p src1 src2))
 
-(declaim (ftype (function (vec vec)) %vector-parallel-p))
+(declaim (ftype (function (vec vec) boolean) %vector-parallel-p))
 (declaim (inline %vector-parallel-p))
 (defun %vector-parallel-p (src1 src2)
   "Check if two vectors are parallel to each other"
