@@ -49,36 +49,31 @@
            :vclosep
            :vdirp
            :vparp
-           :ax-matrix
-           :make-matrix
-           :matrix-copy-*
-           :matrix-copy
-           :matrix-identity-*
-           :matrix-identity
-           :matrix-stabilize-*
-           :matrix-stabilize
-           :matrix-multiply-*
-           :matrix-multiply
-           :matrix-transpose-*
-           :matrix-transpose
-           :matrix-rotate-*
-           :matrix-rotate
-           :matrix-translate-*
-           :matrix-translate
-           :matrix-scale-*
-           :matrix-scale
-           :matrix-rotate-around-*
-           :matrix-rotate-around
-           :matrix-get-translation-*
-           :matrix-get-translation
-           :matrix-copy-rotation-*
-           :matrix-copy-rotation
-           :matrix-apply-*
-           :matrix-apply
-           :matrix-convert-to-opengl-*
-           :matrix-convert-to-opengl
-           :matrix-convert-from-opengl-*
-           :matrix-convert-from-opengl
+           :mat
+           :matcp
+           :matcp*
+           :matid
+           :matid*
+           :matstab
+           :matstab*
+           :matmult
+           :matmult*
+           :mattransp
+           :mattransp*
+           :matrot
+           :matrot*
+           :mattransl
+           :mattransl*
+           :matscale
+           :matscale*
+           :matrota
+           :matrota*
+           :matgettransl
+           :matgettransl*
+           :matcprot
+           :matcprot*
+           :matapply
+           :matapply*
            :move-by
            :rotate-by
            :rpms->radians

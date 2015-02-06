@@ -2,13 +2,13 @@
 
 (declaim (optimize (space 0) (speed 3)))
 
-(deftype ax-matrix () '(simple-array single-float (16)))
-(defstruct (ax-matrix
+(deftype mat () '(simple-array single-float (16)))
+(defstruct (mat
              (:type (vector single-float))
-             (:constructor make-matrix (&optional m00 m01 m02 m03
-                                                  m10 m11 m12 m13
-                                                  m20 m21 m22 m23
-                                                  m30 m31 m32 m33))
+             (:constructor mat (&optional m00 m01 m02 m03
+                                          m10 m11 m12 m13
+                                          m20 m21 m22 m23
+                                          m30 m31 m32 m33))
              (:conc-name nil))
   (m00 0.0 :type single-float)
   (m01 0.0 :type single-float)
@@ -27,7 +27,7 @@
   (m32 0.0 :type single-float)
   (m33 0.0 :type single-float))
 
-(defmacro with-matrix ((prefix matrix) &body body)
+(defmacro with-matrix ((prefix mat) &body body)
   `(with-accessors ((,(symbolicate prefix "00") m00)
                     (,(symbolicate prefix "01") m01)
                     (,(symbolicate prefix "02") m02)
@@ -44,7 +44,7 @@
                     (,(symbolicate prefix "31") m31)
                     (,(symbolicate prefix "32") m32)
                     (,(symbolicate prefix "33") m33))
-     ,matrix
+     ,mat
      ,@body))
 
 (defmacro with-matrices (binds &body body)
@@ -54,7 +54,7 @@
        (with-matrices ,(cdr binds) ,@body))))
 
 (set-pprint-dispatch
-  'ax-matrix
+  'mat
   #'(lambda (stream pobj)
       #+sbcl
       (declare (sb-ext:muffle-conditions sb-ext:compiler-note))
@@ -70,13 +70,13 @@
 (defun matrix-test ()
   "Time the result of multiplying 1 million matrices"
   (time
-    (let ((m (matrix-identity)))
+    (let ((m (matid)))
       (loop repeat 1000000
-            do (matrix-multiply-* m m m)))))
+            do (matmult* m m m)))))
 
-(declaim (ftype (function (ax-matrix ax-matrix) ax-matrix) matrix-copy-*))
-(defun matrix-copy-* (src dest)
-  "Copy a matrix to an existing matrix"
+(declaim (ftype (function (mat mat) mat) %matrix-copy))
+(defun %matrix-copy (src dest)
+  "Make a copy of a matrix"
   (with-matrices ((s src) (d dest))
     (psetf d00 s00 d01 s01 d02 s02 d03 s03
            d10 s10 d11 s11 d12 s12 d13 s13
@@ -84,13 +84,14 @@
            d30 s30 d31 s31 d32 s32 d33 s33))
   dest)
 
-(declaim (ftype (function (ax-matrix) ax-matrix) matrix-copy))
-(defun matrix-copy (src)
-  "Copy a matrix to a new matrix"
-  (matrix-copy-* src (make-matrix)))
+(defun matcp (src)
+  (%matrix-copy src (mat)))
 
-(declaim (ftype (function (ax-matrix) ax-matrix) matrix-identity-*))
-(defun matrix-identity-* (src)
+(defun matcp* (src dest)
+  (%matrix-copy src dest))
+
+(declaim (ftype (function (mat) mat) %matrix-identity))
+(defun %matrix-identity (src)
   "Set a matrix to the identity matrix"
   (with-matrix (m src)
     (psetf m00 1.0 m01 0.0 m02 0.0 m03 0.0
@@ -99,14 +100,15 @@
            m30 0.0 m31 0.0 m32 0.0 m33 1.0))
   src)
 
-(declaim (ftype (function () ax-matrix) matrix-identity))
-(defun matrix-identity ()
-  "Create a new identity matrix"
-  (matrix-identity-* (make-matrix)))
+(defun matid ()
+  (%matrix-identity (mat)))
 
-(declaim (ftype (function (ax-matrix &key (:tolerance single-float)) ax-matrix)
-                matrix-stabilize-*))
-(defun matrix-stabilize-* (src &key (tolerance *tolerance*))
+(defun matid* (src)
+  (%matrix-identity src))
+
+(declaim (ftype (function (mat &key (:tolerance single-float)) mat)
+                %matrix-stabilize))
+(defun %matrix-stabilize (src &key (tolerance *tolerance*))
   "Force each matrix element to 0 if below the tolerance level"
   (with-matrix (m src)
     (macrolet ((stabilize (place)
@@ -130,16 +132,15 @@
       (stabilize m33)))
   src)
 
-(declaim (ftype (function (ax-matrix &key (:tolerance single-float)) ax-matrix)
-                matrix-stabilize))
-(defun matrix-stabilize (src &key (tolerance *tolerance*))
-  "Force each matrix element to 0 if below the tolerance level as a new matrix"
-  (matrix-stabilize-* (matrix-copy src) :tolerance tolerance))
+(defun matstab (src &key (tolerance *tolerance*))
+  (%matrix-stabilize (matcp src) :tolerance tolerance))
 
-(declaim (ftype (function (ax-matrix ax-matrix ax-matrix) ax-matrix)
-                matrix-multiply-*))
-(defun matrix-multiply-* (src1 src2 dest)
-  "Store the product of two matrices in an existing matrix"
+(defun matstab* (src &key (tolerance *tolerance*))
+  (%matrix-stabilize src :tolerance tolerance))
+
+(declaim (ftype (function (mat mat mat) mat) %matrix-multiply))
+(defun %matrix-multiply (src1 src2 dest)
+  "Multiply two matrices"
   (with-matrices ((a src1) (b src2) (d dest))
     (psetf d00 (+ (* a00 b00) (* a01 b10) (* a02 b20) (* a03 b30))
            d10 (+ (* a10 b00) (* a11 b10) (* a12 b20) (* a13 b30))
@@ -159,16 +160,17 @@
            d33 (+ (* a30 b03) (* a31 b13) (* a32 b23) (* a33 b33))))
   dest)
 
-(declaim (ftype (function (ax-matrix ax-matrix) ax-matrix) matrix-multiply))
-(defun matrix-multiply (src1 src2)
-  "Store the product of two matrices in a new matrix"
-  (matrix-multiply-* src1 src2 (make-matrix)))
+(defun matmult (src1 src2)
+  (%matrix-multiply src1 src2 (mat)))
 
-(declaim (ftype (function (ax-matrix ax-matrix) ax-matrix) matrix-transpose-*))
-(defun matrix-transpose-* (src dest)
+(defun matmult* (src1 src2 dest)
+  (%matrix-multiply src1 src2 dest))
+
+(declaim (ftype (function (mat mat) mat) %matrix-transpose))
+(defun %matrix-transpose (src dest)
   "Convert all rows into columns, and all columns into rows"
   (unless (eq src dest)
-    (matrix-copy-* src dest))
+    (matcp* src dest))
   (with-matrix (m dest)
     (rotatef m10 m01)
     (rotatef m20 m02)
@@ -178,22 +180,22 @@
     (rotatef m32 m23))
   dest)
 
-(declaim (ftype (function (ax-matrix) ax-matrix) matrix-transpose))
-(defun matrix-transpose (src)
-  "Convert all rows into columns, and all columns into rows, as a new matrix"
-  (matrix-transpose-* src (make-matrix)))
+(defun mattransp (src)
+  (%matrix-transpose src (mat)))
 
-(declaim (ftype (function (vec ax-matrix ax-matrix) ax-matrix)
-                matrix-rotate-*))
-(defun matrix-rotate-* (vec src dest)
+(defun mattransp* (src dest)
+  (%matrix-transpose src dest))
+
+(declaim (ftype (function (vec mat mat) mat) %matrix-rotate))
+(defun %matrix-rotate (vec src dest)
   "Apply a rotation transformation to a matrix"
-  (let ((rotation (matrix-identity)))
+  (let ((rotation (matid)))
     (macrolet ((rot (axis s c &body body)
                  `(let ((,s (sin ,axis))
                         (,c (cos ,axis)))
                     ,@body
-                    (matrix-multiply-* src rotation dest)
-                    (matrix-copy-rotation-* dest src))))
+                    (matmult* src rotation dest)
+                    (matcprot* dest src))))
       (with-matrix (m rotation)
         (rot (vz vec) s c
           (psetf m00 c
@@ -220,15 +222,16 @@
                  m02 s
                  m12 0.0
                  m22 c)))))
-  (matrix-stabilize-* src))
+  (matstab* src))
 
-(declaim (ftype (function (vec ax-matrix) ax-matrix) matrix-rotate))
-(defun matrix-rotate (vec src)
-  "Apply a rotation transformation to a matrix as a new matrix"
-  (matrix-rotate-* vec src (matrix-identity)))
+(defun matrot (vec src)
+  (%matrix-rotate vec src (matid)))
 
-(declaim (ftype (function (vec ax-matrix) ax-matrix) matrix-translate-*))
-(defun matrix-translate-* (vec src)
+(defun matrot* (vec src dest)
+  (%matrix-rotate vec src dest))
+
+(declaim (ftype (function (vec mat) mat) %matrix-translate))
+(defun %matrix-translate (vec src)
   "Apply a translation transformation to a matrix"
   (with-matrix (m src)
     (psetf m03 (vx vec)
@@ -236,29 +239,30 @@
            m23 (vz vec)))
   src)
 
-(declaim (ftype (function (vec) ax-matrix) matrix-translate))
-(defun matrix-translate (vec)
-  "Apply a translation transformation to a matrix as a new matrix"
-  (matrix-translate-* vec (matrix-identity)))
+(defun mattransl (vec)
+  (%matrix-translate vec (matid)))
 
-(declaim (ftype (function (vec ax-matrix) ax-matrix) matrix-scale-*))
-(defun matrix-scale-* (vec src)
+(defun mattransl* (vec src)
+  (%matrix-translate vec src))
+
+(declaim (ftype (function (vec mat) mat) %matrix-scale))
+(defun %matrix-scale (vec src)
   "Apply a scale transformation to a matrix"
-  (matrix-identity-* src)
+  (matid* src)
   (with-matrix (m src)
     (psetf m00 (vx vec)
            m11 (vy vec)
            m22 (vz vec)))
   src)
 
-(declaim (ftype (function (vec) ax-matrix) matrix-scale))
-(defun matrix-scale (vec)
-  "Apply a scale transformation to a matrix as a new matrix"
-  (matrix-scale-* vec (matrix-identity)))
+(defun matscale (vec)
+  (%matrix-scale vec (matid)))
 
-(declaim (ftype (function (ax-matrix double-float vec) ax-matrix)
-                matrix-rotate-around-*))
-(defun matrix-rotate-around-* (src angle axis)
+(defun matscale* (vec src)
+  (%matrix-scale vec src))
+
+(declaim (ftype (function (mat double-float vec) mat) %matrix-rotate-around))
+(defun %matrix-rotate-around (src angle axis)
   "Rotate a transformation matrix around an axis by the given angle"
   (let* ((axis (vnorm axis))
          (c (cos angle))
@@ -290,33 +294,31 @@
              m13 0.0
              m23 0.0
              m33 1.0))
-    (matrix-stabilize-* src)))
+    (matstab* src)))
 
-(declaim (ftype (function (double-float vec) ax-matrix)
-                matrix-rotate-around))
-(defun matrix-rotate-around (angle axis)
-  "Rotate a transformation matrix around an axis by the given angle, as
-   a new matrix."
-  (matrix-rotate-around-* (matrix-identity) angle axis))
+(defun matrota (angle axis)
+  (%matrix-rotate-around (matid) angle axis))
 
-(declaim (ftype (function (vec ax-matrix) vec)
-                matrix-get-translation-*))
-(defun matrix-get-translation-* (vec src)
-  "Put the translation column of a matrix into the given vector"
+(defun matrota* (src angle axis)
+  (%matrix-rotate-around src angle axis))
+
+(declaim (ftype (function (vec mat) vec) %matrix-get-translation))
+(defun %matrix-get-translation (vec src)
+  "Put the translation column of a matrix into a vector"
   (with-matrix (m src)
     (psetf (vx vec) m03
            (vy vec) m13
            (vz vec) m23))
   vec)
 
-(declaim (ftype (function (ax-matrix) vec) matrix-get-translation))
-(defun matrix-get-translation (src)
-  "Put the translation column of a matrix into a new vector"
-  (matrix-get-translation-* (vec) src))
+(defun matgettransl (src)
+  (%matrix-get-translation (vec) src))
 
-(declaim (ftype (function (ax-matrix ax-matrix) ax-matrix)
-                matrix-copy-rotation-*))
-(defun matrix-copy-rotation-* (src dest)
+(defun matgettransl (vec src)
+  (%matrix-get-translation vec src))
+
+(declaim (ftype (function (mat mat) mat) %matrix-copy-rotation))
+(defun %matrix-copy-rotation (src dest)
   "Copy the rotation transformation of a matrix"
   (with-matrices ((s src) (d dest))
     (psetf d00 s00 d01 s01 d02 s02
@@ -324,14 +326,14 @@
            d20 s20 d21 s21 d22 s22))
   dest)
 
-(declaim (ftype (function (ax-matrix) ax-matrix) matrix-copy-rotation))
-(defun matrix-copy-rotation (src)
-  "Copy the rotation transformation to a new matrix"
-  (matrix-copy-rotation-* src (matrix-identity)))
+(defun matcprot (src)
+  (%matrix-copy-rotation src (matid)))
 
-(declaim (ftype (function (ax-matrix vec vec) vec)
-                matrix-apply-*))
-(defun matrix-apply-* (src point dest)
+(defun matcprot* (src dest)
+  (%matrix-copy-rotation src dest))
+
+(declaim (ftype (function (mat vec vec) vec) %matrix-apply))
+(defun %matrix-apply (src point dest)
   "Multiply a transformation matrix by a point"
   (with-matrix (m src)
     (psetf (vx dest) (+ (* m00 (vx point))
@@ -348,73 +350,8 @@
                         (* m23 1.0))))
   dest)
 
-(declaim (ftype (function (ax-matrix vec) vec) matrix-apply))
-(defun matrix-apply (src point)
-  "Multiply a transformation matrix by a point as a new vector"
-  (matrix-apply-* src point (vec)))
+(defun matapply (src point)
+  (%matrix-apply src point (vec)))
 
-(declaim (ftype (function (ax-matrix ax-matrix) ax-matrix)
-                matrix-convert-to-opengl-*))
-(declaim (inline matrix-convert-to-opengl-*))
-(defun matrix-convert-to-opengl-* (src dest)
-  "Convert a matrix into a matrix suitable for OpenGL"
-  (declare ((simple-array single-float (16)) dest))
-  (with-matrix (m src)
-    (psetf (aref dest 0) m00
-           (aref dest 1) m10
-           (aref dest 2) m20
-           (aref dest 3) m30
-           (aref dest 4) m01
-           (aref dest 5) m11
-           (aref dest 6) m21
-           (aref dest 7) m31
-           (aref dest 8) m02
-           (aref dest 9) m12
-           (aref dest 10) m22
-           (aref dest 11) m32
-           (aref dest 12) m03
-           (aref dest 13) m13
-           (aref dest 14) m23
-           (aref dest 15) m33)
-    dest))
-
-(declaim (ftype (function (ax-matrix) ax-matrix) matrix-convert-to-opengl))
-(defun matrix-convert-to-opengl (src)
-  "Convert a matrix to a new matrix suitable for OpenGL"
-  (let ((dest (make-array 16
-                          :element-type 'single-float
-                          :initial-element 0.0)))
-    (declare ((simple-array single-float (16)) dest))
-    (matrix-convert-to-opengl-* src dest)
-    dest))
-
-(declaim (ftype (function (ax-matrix ax-matrix) ax-matrix)
-                matrix-convert-from-opengl-*))
-(declaim (inline matrix-convert-from-opengl-*))
-(defun matrix-convert-from-opengl-* (src dest)
-  "Convert a matrix in OpenGL format"
-  (declare ((simple-array single-float (16)) dest))
-  (with-matrix (m dest)
-    (psetf m00 (aref src 0)
-           m10 (aref src 1)
-           m20 (aref src 2)
-           m30 (aref src 3)
-           m01 (aref src 4)
-           m11 (aref src 5)
-           m21 (aref src 6)
-           m31 (aref src 7)
-           m02 (aref src 8)
-           m12 (aref src 9)
-           m22 (aref src 10)
-           m32 (aref src 11)
-           m03 (aref src 12)
-           m13 (aref src 13)
-           m23 (aref src 14)
-           m33 (aref src 15))
-    dest))
-
-(declaim (ftype (function (ax-matrix) ax-matrix) matrix-convert-from-opengl))
-(defun matrix-convert-from-opengl (src)
-  "Convert a matrix in OpenGL format to a new matrix"
-  (declare ((simple-array single-float (16)) src))
-  (matrix-convert-from-opengl-* src (make-matrix)))
+(defun matapply* (src point dest)
+  (%matrix-apply src point dest))
