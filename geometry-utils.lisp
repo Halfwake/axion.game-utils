@@ -23,7 +23,7 @@
 (defun get-rotation (matrix &key axis)
   "Get the rotation vector associated with the given axis from a matrix, or
    return multiple values of each axis if no axis is given"
-  (with-matrix (m matrix)
+  (%with-matrix (m matrix)
     (let ((x (vec m00 m10 m20))
           (y (vec m01 m11 m21))
           (z (vec m02 m12 m22)))

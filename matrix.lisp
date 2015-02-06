@@ -27,38 +27,39 @@
   (m32 0.0 :type single-float)
   (m33 0.0 :type single-float))
 
-(defmacro with-matrix ((prefix mat) &body body)
-  `(with-accessors ((,(symbolicate prefix "00") m00)
-                    (,(symbolicate prefix "01") m01)
-                    (,(symbolicate prefix "02") m02)
-                    (,(symbolicate prefix "03") m03)
-                    (,(symbolicate prefix "10") m10)
-                    (,(symbolicate prefix "11") m11)
-                    (,(symbolicate prefix "12") m12)
-                    (,(symbolicate prefix "13") m13)
-                    (,(symbolicate prefix "20") m20)
-                    (,(symbolicate prefix "21") m21)
-                    (,(symbolicate prefix "22") m22)
-                    (,(symbolicate prefix "23") m23)
-                    (,(symbolicate prefix "30") m30)
-                    (,(symbolicate prefix "31") m31)
-                    (,(symbolicate prefix "32") m32)
-                    (,(symbolicate prefix "33") m33))
-     ,mat
-     ,@body))
+(defmacro %with-matrix ((prefix mat) &body body)
+  (let ((*package* (find-package "AXION.GAME-UTILS")))
+    `(with-accessors ((,(symbolicate prefix "00") m00)
+                      (,(symbolicate prefix "01") m01)
+                      (,(symbolicate prefix "02") m02)
+                      (,(symbolicate prefix "03") m03)
+                      (,(symbolicate prefix "10") m10)
+                      (,(symbolicate prefix "11") m11)
+                      (,(symbolicate prefix "12") m12)
+                      (,(symbolicate prefix "13") m13)
+                      (,(symbolicate prefix "20") m20)
+                      (,(symbolicate prefix "21") m21)
+                      (,(symbolicate prefix "22") m22)
+                      (,(symbolicate prefix "23") m23)
+                      (,(symbolicate prefix "30") m30)
+                      (,(symbolicate prefix "31") m31)
+                      (,(symbolicate prefix "32") m32)
+                      (,(symbolicate prefix "33") m33))
+       ,mat
+       ,@body)))
 
-(defmacro with-matrices (binds &body body)
+(defmacro %with-matrices (binds &body body)
   (if (null binds)
     `(progn ,@body)
-    `(with-matrix ,(car binds)
-       (with-matrices ,(cdr binds) ,@body))))
+    `(%with-matrix ,(car binds)
+       (%with-matrices ,(cdr binds) ,@body))))
 
 (set-pprint-dispatch
   'mat
   #'(lambda (stream pobj)
       #+sbcl
       (declare (sb-ext:muffle-conditions sb-ext:compiler-note))
-      (with-matrix (m pobj)
+      (%with-matrix (m pobj)
         (print-unreadable-object (pobj stream)
           (format
             stream "~a ~a ~a ~a~%  ~a ~a ~a ~a~%  ~a ~a ~a ~a~%  ~a ~a ~a ~a"
@@ -67,42 +68,39 @@
             m20 m21 m22 m23
             m30 m31 m32 m33)))))
 
-(defun matrix-test ()
-  "Time the result of multiplying 1 million matrices"
-  (time
-    (let ((m (matid)))
-      (loop repeat 1000000
-            do (matmult* m m m)))))
-
 (declaim (ftype (function (mat mat) mat) %matrix-copy))
 (defun %matrix-copy (src dest)
   "Make a copy of a matrix"
-  (with-matrices ((s src) (d dest))
+  (%with-matrices ((s src) (d dest))
     (psetf d00 s00 d01 s01 d02 s02 d03 s03
            d10 s10 d11 s11 d12 s12 d13 s13
            d20 s20 d21 s21 d22 s22 d23 s23
            d30 s30 d31 s31 d32 s32 d33 s33))
   dest)
 
+(declaim (inline matcp))
 (defun matcp (src)
   (%matrix-copy src (mat)))
 
+(declaim (inline matcp*))
 (defun matcp* (src dest)
   (%matrix-copy src dest))
 
 (declaim (ftype (function (mat) mat) %matrix-identity))
 (defun %matrix-identity (src)
   "Set a matrix to the identity matrix"
-  (with-matrix (m src)
+  (%with-matrix (m src)
     (psetf m00 1.0 m01 0.0 m02 0.0 m03 0.0
            m10 0.0 m11 1.0 m12 0.0 m13 0.0
            m20 0.0 m21 0.0 m22 1.0 m23 0.0
            m30 0.0 m31 0.0 m32 0.0 m33 1.0))
   src)
 
+(declaim (inline matid))
 (defun matid ()
   (%matrix-identity (mat)))
 
+(declaim (inline matid*))
 (defun matid* (src)
   (%matrix-identity src))
 
@@ -110,7 +108,7 @@
                 %matrix-stabilize))
 (defun %matrix-stabilize (src &key (tolerance *tolerance*))
   "Force each matrix element to 0 if below the tolerance level"
-  (with-matrix (m src)
+  (%with-matrix (m src)
     (macrolet ((stabilize (place)
                  `(when (< (abs ,place) tolerance)
                     (setf ,place 0.0))))
@@ -132,16 +130,18 @@
       (stabilize m33)))
   src)
 
+(declaim (inline matstab))
 (defun matstab (src &key (tolerance *tolerance*))
   (%matrix-stabilize (matcp src) :tolerance tolerance))
 
+(declaim (inline matstab*))
 (defun matstab* (src &key (tolerance *tolerance*))
   (%matrix-stabilize src :tolerance tolerance))
 
 (declaim (ftype (function (mat mat mat) mat) %matrix-multiply))
 (defun %matrix-multiply (src1 src2 dest)
   "Multiply two matrices"
-  (with-matrices ((a src1) (b src2) (d dest))
+  (%with-matrices ((a src1) (b src2) (d dest))
     (psetf d00 (+ (* a00 b00) (* a01 b10) (* a02 b20) (* a03 b30))
            d10 (+ (* a10 b00) (* a11 b10) (* a12 b20) (* a13 b30))
            d20 (+ (* a20 b00) (* a21 b10) (* a22 b20) (* a23 b30))
@@ -160,9 +160,11 @@
            d33 (+ (* a30 b03) (* a31 b13) (* a32 b23) (* a33 b33))))
   dest)
 
+(declaim (inline matmult))
 (defun matmult (src1 src2)
   (%matrix-multiply src1 src2 (mat)))
 
+(declaim (inline matmult*))
 (defun matmult* (src1 src2 dest)
   (%matrix-multiply src1 src2 dest))
 
@@ -171,7 +173,7 @@
   "Convert all rows into columns, and all columns into rows"
   (unless (eq src dest)
     (matcp* src dest))
-  (with-matrix (m dest)
+  (%with-matrix (m dest)
     (rotatef m10 m01)
     (rotatef m20 m02)
     (rotatef m30 m03)
@@ -180,9 +182,11 @@
     (rotatef m32 m23))
   dest)
 
+(declaim (inline mattransp))
 (defun mattransp (src)
   (%matrix-transpose src (mat)))
 
+(declaim (inline mattransp*))
 (defun mattransp* (src dest)
   (%matrix-transpose src dest))
 
@@ -196,7 +200,7 @@
                     ,@body
                     (matmult* src rotation dest)
                     (matcprot* dest src))))
-      (with-matrix (m rotation)
+      (%with-matrix (m rotation)
         (rot (vz vec) s c
           (psetf m00 c
                  m10 s
@@ -224,24 +228,28 @@
                  m22 c)))))
   (matstab* src))
 
+(declaim (inline matrot))
 (defun matrot (vec src)
   (%matrix-rotate vec src (matid)))
 
+(declaim (inline matrot*))
 (defun matrot* (vec src dest)
   (%matrix-rotate vec src dest))
 
 (declaim (ftype (function (vec mat) mat) %matrix-translate))
 (defun %matrix-translate (vec src)
   "Apply a translation transformation to a matrix"
-  (with-matrix (m src)
+  (%with-matrix (m src)
     (psetf m03 (vx vec)
            m13 (vy vec)
            m23 (vz vec)))
   src)
 
+(declaim (inline mattransl))
 (defun mattransl (vec)
   (%matrix-translate vec (matid)))
 
+(declaim (inline mattransl*))
 (defun mattransl* (vec src)
   (%matrix-translate vec src))
 
@@ -249,15 +257,17 @@
 (defun %matrix-scale (vec src)
   "Apply a scale transformation to a matrix"
   (matid* src)
-  (with-matrix (m src)
+  (%with-matrix (m src)
     (psetf m00 (vx vec)
            m11 (vy vec)
            m22 (vz vec)))
   src)
 
+(declaim (inline matscale))
 (defun matscale (vec)
   (%matrix-scale vec (matid)))
 
+(declaim (inline matscale*))
 (defun matscale* (vec src)
   (%matrix-scale vec src))
 
@@ -277,7 +287,7 @@
          (yy (* (vy axis) (vy axis)))
          (yz (* (vy axis) (vz axis)))
          (zz (* (vz axis) (vz axis))))
-    (with-matrix (m src)
+    (%with-matrix (m src)
       (psetf m00 (float (+ (* xx 1-c) c) 1.0)
              m10 (float (+ (* xy 1-c) zs) 1.0)
              m20 (float (- (* xz 1-c) ys) 1.0)
@@ -296,46 +306,52 @@
              m33 1.0))
     (matstab* src)))
 
+(declaim (inline matrota))
 (defun matrota (angle axis)
   (%matrix-rotate-around (matid) angle axis))
 
+(declaim (inline matrota*))
 (defun matrota* (src angle axis)
   (%matrix-rotate-around src angle axis))
 
 (declaim (ftype (function (vec mat) vec) %matrix-get-translation))
 (defun %matrix-get-translation (vec src)
   "Put the translation column of a matrix into a vector"
-  (with-matrix (m src)
+  (%with-matrix (m src)
     (psetf (vx vec) m03
            (vy vec) m13
            (vz vec) m23))
   vec)
 
+(declaim (inline matgettransl))
 (defun matgettransl (src)
   (%matrix-get-translation (vec) src))
 
-(defun matgettransl (vec src)
+(declaim (inline matgettransl*))
+(defun matgettransl* (vec src)
   (%matrix-get-translation vec src))
 
 (declaim (ftype (function (mat mat) mat) %matrix-copy-rotation))
 (defun %matrix-copy-rotation (src dest)
   "Copy the rotation transformation of a matrix"
-  (with-matrices ((s src) (d dest))
+  (%with-matrices ((s src) (d dest))
     (psetf d00 s00 d01 s01 d02 s02
            d10 s10 d11 s11 d12 s12
            d20 s20 d21 s21 d22 s22))
   dest)
 
+(declaim (inline matcprot))
 (defun matcprot (src)
   (%matrix-copy-rotation src (matid)))
 
+(declaim (inline matcprot*))
 (defun matcprot* (src dest)
   (%matrix-copy-rotation src dest))
 
 (declaim (ftype (function (mat vec vec) vec) %matrix-apply))
 (defun %matrix-apply (src point dest)
   "Multiply a transformation matrix by a point"
-  (with-matrix (m src)
+  (%with-matrix (m src)
     (psetf (vx dest) (+ (* m00 (vx point))
                         (* m01 (vy point))
                         (* m02 (vz point))
@@ -350,8 +366,17 @@
                         (* m23 1.0))))
   dest)
 
+(declaim (inline matapply))
 (defun matapply (src point)
   (%matrix-apply src point (vec)))
 
+(declaim (inline matapply*))
 (defun matapply* (src point dest)
   (%matrix-apply src point dest))
+
+(defun %matrix-test ()
+  "Time the result of multiplying 1 million matrices"
+  (time
+    (let ((m (matid)))
+      (loop repeat 1000000
+            do (matmult* m m m)))))
