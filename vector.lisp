@@ -364,6 +364,19 @@
 (defun vparp (src1 src2)
   (%vector-parallel-p src1 src2))
 
+(declaim (ftype (function (vec) boolean) %vector-negative-p))
+(declaim (inline %vector-negative-p))
+(defun %vector-negative-p (src)
+  "Check if any components of a vector are negative"
+  (%with-vector (s src)
+    (or (minusp sx)
+        (minusp sy)
+        (minusp sz))))
+
+(declaim (inline vnegp))
+(defun vnegp (src)
+  (%vector-negative-p src))
+
 (defun %vector-test ()
   "Time the result of multiplying 1 million vectors"
   (time

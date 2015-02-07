@@ -4,12 +4,13 @@
   :version "0.1"
   :license "GPLv3+"
   :description "Various utilities to aid with game development"
-  :depends-on (:cl-opengl
-               :cl-glu
-               :sdl2kit
+  :depends-on (:alexandria
+               :split-sequence
                :png-read
-               :alexandria
-               :split-sequence)
+               :cl-heap
+               :cl-opengl
+               :cl-glu
+               :sdl2kit)
   :serial t
   :components ((:file "packages")
                (:file "utils")

@@ -51,8 +51,9 @@
     (cube->hex dest)))
 
 (defun hex-neighbor (src direction)
-  "Calculate the coordinates of a hexagon's neighbor given a source hexagon
-   coordinate and a 2-D directional vector.
+  "Calculate a hexagon's neighbor given its coordinates and a directional
+   vector. Directional vectors represent the cardinal coordinates of each
+   edge of a hexagon oritented with its points facing up and down.
    Example: Hexagon 2,2 with direction -1,1 (northwest) would return the
    coordinates 1,1"
   (%with-vector (d direction)
@@ -64,6 +65,26 @@
                          ,(vec 0 -1 1)))
            (index (mod (+ 6 (round (/ (* 6 (atan dy dx)) (* pi 2)))) 6)))
       (cube->hex (vadd (hex->cube src) (aref directions index))))))
+
+(defun hex-neighbors (src map-size)
+  "Return a list of vectors representing all neighbors of the given hexagon
+   coordinates, excluding neighbors that fall outside of the given map
+   dimensions.
+   Note: Map dimensions are the size of the array, as given by
+   ARRAY-DIMENSIONS, not the indices of the array which start at 0. This is
+   why we do a VSUB* call below."
+  (let ((directions `#(,(vec -1 -1)
+                       ,(vec 1 -1)
+                       ,(vec 1 0)
+                       ,(vec 1 1)
+                       ,(vec -1 1)
+                       ,(vec -1 0))))
+    (vsub* map-size (vec 1 1) map-size)
+    (loop for direction across directions
+          for neighbor = (hex-neighbor src direction)
+          unless (or (vnegp neighbor)
+                     (vnegp (vsub map-size neighbor)))
+          collect neighbor)))
 
 (defun hex-neighbors-p (src target)
   "Check if two hexagon coordinates are neighbors"

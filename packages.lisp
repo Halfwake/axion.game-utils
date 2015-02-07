@@ -1,5 +1,5 @@
 (defpackage #:axion.game-utils
-  (:use :cl :alexandria :split-sequence)
+  (:use :cl :alexandria :split-sequence :cl-heap)
   (:export *system*
            *executablep*
            :get-path
@@ -49,6 +49,7 @@
            :vclosep
            :vdirp
            :vparp
+           :vnegp
            :mat
            :matcp
            :matcp*
@@ -93,6 +94,7 @@
            :hex-distance
            :hex-round
            :hex-neighbor
+           :hex-neighbors
            :hex-neighbors-p
            :load-obj
            :key-down
