@@ -59,7 +59,7 @@
            sz 0.0))
   src)
 
-(declaim (inline vlr*))
+(declaim (inline vclr*))
 (defun vclr* (src)
   (%vector-clear src))
 
